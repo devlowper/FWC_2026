@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FIFA World Cup 2026 — Live Scores, Streams & Schedule</title>
+  <meta name="description"
+    content="Live scores, match schedule, group standings, stadiums, and streams for FIFA World Cup 2026 — USA, Mexico & Canada." />
+
+  <!-- Font Awesome Solid Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- HLS Streaming Script -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest" async></script>
+
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ===== STICKY TOP NAVBAR ===== -->
+  <nav class="navbar" id="main-navbar">
+    <div class="container navbar-container">
+      <a href="#" class="navbar-brand" onclick="showSection('home'); return false;">
+        <i class="fa-solid fa-futbol brand-icon"></i>
+        <div class="brand-text">World Cup <span class="brand-year">2026</span></div>
+      </a>
+
+      <!-- Desktop Links -->
+      <div class="navbar-links" id="nav-links-desktop">
+        <button id="nav-home" class="navbar-link active" onclick="showSection('home')">Home</button>
+        <button id="nav-live" class="navbar-link" onclick="showSection('live')">Live Scores</button>
+        <button id="nav-stream" class="navbar-link" onclick="showSection('stream')">Live Stream</button>
+        <button id="nav-schedule" class="navbar-link" onclick="showSection('schedule')">Schedule</button>
+      </div>
+
+      <div class="navbar-controls">
+        <!-- Theme Toggle Switch -->
+        <button id="theme-toggle" class="theme-toggle-switch" onclick="toggleTheme()"
+          aria-label="Toggle dark/light theme">
+          <div class="toggle-track">
+            <div class="toggle-thumb">
+              <i class="fa-solid fa-sun icon-light"></i>
+              <i class="fa-solid fa-moon icon-dark"></i>
+            </div>
+          </div>
+        </button>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button id="mobile-menu-toggle" class="mobile-menu-toggle" onclick="toggleMobileMenu()"
+          aria-label="Toggle mobile menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Dropdown Menu -->
+    <div class="mobile-menu" id="mobile-menu">
+      <button id="mobile-nav-home" class="mobile-menu-link active"
+        onclick="showSection('home'); closeMobileMenu();">Home</button>
+      <button id="mobile-nav-live" class="mobile-menu-link" onclick="showSection('live'); closeMobileMenu();">Live
+        Scores</button>
+      <button id="mobile-nav-stream" class="mobile-menu-link" onclick="showSection('stream'); closeMobileMenu();">Live
+        Stream</button>
+      <button id="mobile-nav-schedule" class="mobile-menu-link"
+        onclick="showSection('schedule'); closeMobileMenu();">Schedule</button>
+    </div>
+  </nav>
+
+  <!-- ===== MAIN CONTENT CONTAINER ===== -->
+  <main class="container">
+
+    <!-- ===== SECTION: HOME ===== -->
+    <section id="section-home" class="section-panel active-section">
+      <!-- Hero Banner -->
+      <div class="hero-section" style="border-bottom: none; padding-bottom: 24px;">
+        <p class="hero-subtitle">FIFA World Cup 2026™</p>
+        <h1 class="hero-title">The Biggest Tournament<br>Ever Played.</h1>
+        <p class="hero-description">
+          48 teams. 104 matches. 16 stadiums across the United States, Mexico, and Canada. June 11 – July 19, 2026.
+        </p>
+        <div class="hero-buttons" style="margin-bottom: 40px;">
+          <button class="btn btn-primary" onclick="showSection('live')"><i class="fa-solid fa-futbol"></i> Live
+            Scores</button>
+          <button class="btn btn-outline" onclick="showSection('schedule')"><i class="fa-solid fa-calendar-days"></i>
+            Schedule</button>
+          <button class="btn btn-outline" onclick="showSection('live')"><i class="fa-solid fa-trophy"></i>
+            Standings</button>
+          <button class="btn btn-outline" onclick="showSection('venues')"><i class="fa-solid fa-building-columns"></i>
+            Venues</button>
+        </div>
+
+        <!-- Hero Cards Grid (Latest Match + Next Match countdown) -->
+        <div class="grid-2-col" style="text-align: left;">
+          <!-- Latest Match Card -->
+          <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <h3 class="card-title" style="margin-bottom: 8px;"><i class="fa-solid fa-trophy"
+                  style="color:var(--accent-color);"></i> Latest Match</h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 16px;">The most recently played
+                or active tournament fixture.</p>
+            </div>
+            <div id="home-latest-match-card">
+              <div class="skeleton-shimmer" style="height: 140px;"></div>
+            </div>
+          </div>
+
+          <!-- Next Match Card with Countdown -->
+          <div class="card"
+            style="display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
+            <div>
+              <h3 class="card-title" style="margin-bottom: 8px;"><i class="fa-solid fa-clock"
+                  style="color:var(--accent-color);"></i> Next Match</h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 16px;">Counting down to the
+                final kickoff at MetLife Stadium.</p>
+            </div>
+
+            <!-- Countdown Widget -->
+            <div class="countdown-container" style="margin: 10px auto 20px auto; width: 100%;">
+              <div class="countdown-box">
+                <div id="cd-days" class="countdown-num">--</div>
+                <div class="countdown-label">Days</div>
+              </div>
+              <div class="countdown-box">
+                <div id="cd-hours" class="countdown-num">--</div>
+                <div class="countdown-label">Hours</div>
+              </div>
+              <div class="countdown-box">
+                <div id="cd-mins" class="countdown-num">--</div>
+                <div class="countdown-label">Mins</div>
+              </div>
+              <div class="countdown-box">
+                <div id="cd-secs" class="countdown-num">--</div>
+                <div class="countdown-label">Secs</div>
+              </div>
+            </div>
+
+            <div id="home-next-match-details" style="font-size: 0.8rem; font-weight: 700; color: var(--accent-color);">
+              <!-- Mapped in JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid" style="margin-bottom: 48px; margin-top: 0;">
+        <div class="stat-item">
+          <div class="stat-num" data-target="48">0</div>
+          <div class="stat-label">Teams</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" data-target="104">0</div>
+          <div class="stat-label">Matches</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" data-target="16">0</div>
+          <div class="stat-label">Stadiums</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" data-target="3">0</div>
+          <div class="stat-label">Nations</div>
+        </div>
+      </div>
+
+      <!-- MATCHES/FIXTURES SECTION (HORIZONTAL SCROLL) -->
+      <div style="margin-bottom: 48px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px;">
+          <h2 class="card-title"><i class="fa-solid fa-calendar-days"></i> Tournament Fixtures</h2>
+          <a href="#" onclick="showSection('schedule'); return false;"
+            style="font-weight: 700; font-size: 0.85rem; text-transform: uppercase;">Full Schedule →</a>
+        </div>
+        <div id="home-fixtures-horizontal-list" class="horizontal-scroll-list">
+          <div class="card skeleton-shimmer" style="height: 160px; min-width: 280px;"></div>
+          <div class="card skeleton-shimmer" style="height: 160px; min-width: 280px;"></div>
+          <div class="card skeleton-shimmer" style="height: 160px; min-width: 280px;"></div>
+        </div>
+      </div>
+
+      <!-- GROUPS SECTION -->
+      <div style="margin-bottom: 48px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px;">
+          <h2 class="card-title"><i class="fa-solid fa-trophy"></i> Groups Overview</h2>
+          <a href="#" onclick="showSection('live'); return false;"
+            style="font-weight: 700; font-size: 0.85rem; text-transform: uppercase;">Full Standings &rarr;</a>
+        </div>
+        <div id="home-groups" class="grid-3-col">
+          <div class="card skeleton-shimmer" style="height: 180px;"></div>
+          <div class="card skeleton-shimmer" style="height: 180px;"></div>
+          <div class="card skeleton-shimmer" style="height: 180px;"></div>
+        </div>
+      </div>
+
+      <!-- LATEST RESULTS SECTION -->
+      <div style="margin-bottom: 48px;">
+        <h2 class="card-title" style="margin-bottom: 16px;"><i class="fa-solid fa-circle-check"></i> Latest Completed
+          Results</h2>
+        <div id="home-latest-results" class="grid-3-col">
+          <div class="card skeleton-shimmer" style="height: 140px;"></div>
+          <div class="card skeleton-shimmer" style="height: 140px;"></div>
+          <div class="card skeleton-shimmer" style="height: 140px;"></div>
+        </div>
+      </div>
+
+      <!-- STADIUMS SECTION -->
+      <div style="margin-bottom: 48px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px;">
+          <h2 class="card-title"><i class="fa-solid fa-building-columns"></i> Host Stadiums</h2>
+          <a href="#" onclick="showSection('venues'); return false;"
+            style="font-weight: 700; font-size: 0.85rem; text-transform: uppercase;">All Stadiums →</a>
+        </div>
+        <div id="home-stadiums-grid" class="grid-3-col">
+          <div class="card skeleton-shimmer" style="height: 220px;"></div>
+          <div class="card skeleton-shimmer" style="height: 220px;"></div>
+          <div class="card skeleton-shimmer" style="height: 220px;"></div>
+        </div>
+      </div>
+
+      <!-- SPONSOR LOGOS MARQUEE -->
+      <section class="sponsors-section">
+        <!-- Hidden SVG Symbols for reuse -->
+        <svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+          <symbol id="sponsor-devlowper" viewBox="0 0 885 210">
+            <g fill="currentColor">
+              <path
+                d="M274.33,87.9c13.32,0,17.64,7.44,17.64,7.44h0.24c0,0-0.12-1.56-0.12-3.6v-10.8c0-1.8-0.96-2.64-2.64-2.64 h-4.8V65.34h14.52c5.64,0,8.16,2.52,8.16,8.16v61.56c0,1.68,0.96,2.64,2.64,2.64h4.68v12.84h-14.04c-5.52,0-7.56-2.64-7.56-6.24 c0-1.32,0-2.28,0-2.28h-0.24c0,0-5.04,9.96-19.08,9.96c-16.56,0-27.24-13.08-27.24-32.04C246.49,100.5,258.13,87.9,274.33,87.9z M292.45,119.82c0-9.48-4.92-18.84-15.12-18.84c-8.4,0-15.36,6.84-15.36,18.96c0,11.64,6.12,19.2,15.12,19.2 C285.01,139.14,292.45,133.38,292.45,119.82z" />
+              <path
+                d="M353.41,87.9c17.52,0,27.12,12.84,27.12,29.04c0,1.8-0.36,5.64-0.36,5.64h-42.24 c1.2,10.8,9.12,16.44,18.36,16.44c9.84,0,17.16-6.84,17.16-6.84l6.36,10.56c0,0-9.36,9.24-24.6,9.24 c-20.28,0-32.88-14.64-32.88-32.04C322.33,101.1,335.05,87.9,353.41,87.9z M364.93,112.02c-0.24-7.32-5.28-12.36-11.52-12.36 c-7.8,0-13.32,4.68-15,12.36H364.93z" />
+              <path
+                d="M392.65,104.46c-0.6-1.56-1.68-2.16-3.36-2.16h-1.32V89.34h8.76c5.04,0,7.44,1.56,9,5.76l11.52,32.16 c1.32,3.6,2.28,8.76,2.28,8.76h0.24c0,0,0.96-5.16,2.16-8.76l11.52-32.16c1.56-4.2,4.08-5.76,9-5.76h8.16v12.96h-1.44 c-1.68,0-2.76,0.6-3.36,2.16l-17.52,46.08h-18.12L392.65,104.46z" />
+              <path
+                d="M462.73,80.94c0-1.8-0.96-2.64-2.64-2.64h-4.8V65.34h14.52c5.64,0,8.16,2.52,8.16,8.16v61.56 c0,1.68,0.96,2.64,2.64,2.64h4.68v12.84h-14.4c-5.76,0-8.16-2.4-8.16-8.16V80.94z" />
+              <path
+                d="M526.57,87.9c18.72,0,33.6,13.32,33.6,32.04c0,18.84-14.88,32.04-33.6,32.04c-18.6,0-33.48-13.2-33.48-32.04 C493.09,101.22,507.97,87.9,526.57,87.9z M526.57,139.02c9.96,0,18.24-7.68,18.24-19.08c0-11.28-8.28-19.08-18.24-19.08 c-9.84,0-18.12,7.8-18.12,19.08C508.45,131.34,516.73,139.02,526.57,139.02z" />
+              <path
+                d="M570.25,104.46c-0.6-1.8-1.56-2.16-3.36-2.16h-1.68V89.34h10.44c5.04,0,7.44,1.56,8.64,6.24l9,33.96 c0.84,3.24,1.2,6.48,1.2,6.48h0.24c0,0,0.48-3.24,1.44-6.48l11.28-39.96h13.44l11.4,39.96c0.96,3.24,1.32,6.48,1.32,6.48h0.24 c0,0,0.36-3.24,1.2-6.48l8.88-33.96c1.2-4.68,3.6-6.24,8.64-6.24H663v12.96h-1.68c-1.8,0-2.64,0.36-3.36,2.16l-14.64,46.08h-17.16 l-10.44-34.92c-0.96-3.24-1.44-6.6-1.44-6.6h-0.24c0,0-0.6,3.36-1.56,6.6l-10.32,34.92h-17.28L570.25,104.46z" />
+              <path
+                d="M675.37,104.94c0-1.8-0.96-2.64-2.64-2.64h-4.8V89.34h13.56c5.64,0,7.68,2.52,7.68,5.88c0,1.44,0,2.4,0,2.4 h0.24c0,0,5.16-9.72,19.44-9.72c16.56,0,27.24,13.08,27.24,32.04c0,19.44-12,32.04-28.08,32.04c-12.12,0-17.52-8.04-17.52-8.04 h-0.24c0,0,0.24,2.16,0.24,5.28v25.32h-15.12V104.94z M705.24,139.14c8.4,0,15.48-6.84,15.48-18.96c0-11.64-6.24-19.2-15.24-19.2 c-7.92,0-15.36,5.76-15.36,19.32C690.12,129.78,695.16,139.14,705.24,139.14z" />
+              <path
+                d="M776.04,87.9c17.52,0,27.12,12.84,27.12,29.04c0,1.8-0.36,5.64-0.36,5.64h-42.24 c1.2,10.8,9.12,16.44,18.36,16.44c9.84,0,17.16-6.84,17.16-6.84l6.36,10.56c0,0-9.36,9.24-24.6,9.24 c-20.28,0-32.88-14.64-32.88-32.04C744.96,101.1,757.68,87.9,776.04,87.9z M787.56,112.02c-0.24-7.32-5.28-12.36-11.52-12.36 c-7.8,0-13.32,4.68-15,12.36H787.56z" />
+              <path
+                d="M819.12,104.94c0-1.8-0.96-2.64-2.64-2.64h-4.8V89.34h13.92c5.4,0,8.16,2.28,8.16,7.44v3.6 c0,2.28-0.24,3.84-0.24,3.84h0.24c2.76-8.76,10.08-15.72,19.44-15.72c1.32,0,2.76,0.24,2.76,0.24v15c0,0-1.56-0.24-3.72-0.24 c-6.48,0-13.92,3.72-16.68,12.84c-0.84,3-1.32,6.36-1.32,9.96v24.24h-15.12V104.94z" />
+              <path
+                d="M113.96,131.51c0.09,1.2-0.04,2.64-0.62,3.65c-4.32,7.47-9.41,14.29-16.82,19.08 c-2.8,1.81-5.8,2.49-9.04,2.37c-3.9-0.14-6.54-2.18-8.16-5.61c-2.74-5.78-2.8-11.79-1.36-17.89c2.11-8.96,6.05-16.84,13.67-22.44 c5.86-4.3,12.23-4.82,18.96-2.38c1.57,0.57,2.5,1.39,2.25,3.31c-0.22,1.72-0.05,3.48-0.05,5.23c-0.07,0.01-0.15,0.01-0.22,0.02 C113.05,121.74,113.59,126.62,113.96,131.51z" />
+              <path
+                d="M127.53,110.43c-1.18,2.41-2.38,4.82-3.58,7.22c-0.05,0.11-0.27,0.13-0.8,0.34 c-0.1-1.57-0.37-3.03-0.26-4.46c0.69-9.08,1.2-18.18,2.28-27.21c0.94-7.86,2.4-15.69,5.64-23c1.01-2.26,2.45-4.49,4.2-6.22 c2.61-2.57,5.63-1.72,6.01,1.88c0.45,4.35,0.38,8.87-0.31,13.18C138.56,85.65,133.54,98.23,127.53,110.43z" />
+              <path
+                d="M139.22,11.72c-13.81-1.34-27.53,0.58-40.58,4.52c-14.62,4.49-24.58,9.17-37.53,18.53 c-2.58,1.9-3.95,2.51-6.68,5.19c-2.63,1.78-4.58,3.7-6.09,5.19c-4.86,4.68-10.03,10.53-14.21,16.91 c-3.89,4.91-7.96,14.14-10.08,19.37c-8.61,22.09-4.67,48.7,6.91,70.02c17.14,30.33,48.16,48.94,83.6,49.26 c58.3,0.1,95.97-36.48,95.46-95.12C210.28,58.88,191.29,15.78,139.22,11.72z M163.52,140.84c-1.95,8.25-10.05,21.54-20.76,24.75 c-9.94,2.99-19.37-1.73-23.53-11.76c-0.82-1.96-1.5-3.98-2.42-6.44c-2.49,3.03-4.56,5.82-6.9,8.36 c-5.63,6.09-12.11,10.53-20.8,11.18c-10.34,0.78-18.88-5.3-21.85-15.55c-2.67-9.22-1.38-18.1,1.85-26.77 c2.93-7.88,7.16-15.06,13.8-20.48c8.74-7.14,18.31-9.88,29.19-5.21c0.28,0.12,0.59,0.17,1.21,0.34c0.2-1.14,0.47-2.18,0.54-3.23 c0.83-12.4,2.99-24.56,7.81-36.06c1.58-3.79,4.05-7.38,6.79-10.47c3.78-4.25,8.93-5.5,14.37-3.7c5.34,1.76,7.58,6.22,8.48,11.41 c1.17,6.76,0.15,13.46-1.22,20.05c-4.05,19.49-12.63,37.13-22.56,54.17c-1.77,3.04-2.56,5.94-1.41,9.2 c1.33,3.79,2.45,7.74,4.4,11.2c2.77,4.93,7.84,5.67,12.41,2.28c4.26-3.16,6.9-7.58,9.18-12.25c0.83-1.7,1.6-3.47,2.72-4.97 c1.42-1.9,3.76-2.28,5.77-1.32C162.45,136.45,163.99,138.87,163.52,140.84z" />
+            </g>
+          </symbol>
+
+          <symbol id="sponsor-vectorpoint" viewBox="0 0 624 210">
+            <g fill="currentColor">
+              <path d="M290.89,95.49l-10.26-77.67h19.38l4.79,54.69h1.25l4.56-54.69h19.04l-10.83,77.67H290.89z" />
+              <path d="M340.59,95.49V17.83h38.19v16.42h-20.29v13.65h19.95v15.7h-19.95v14.67h20.18v17.24H340.59z" />
+              <path
+                d="M436.13,65.74c0.23,2.46,0.34,4.82,0.34,6.98c0,16.52-2.96,24.11-22.23,24.11c-11.4,0-16.76-1.64-19.72-6.36 c-2.96-4.51-4.22-10.46-4.22-34.47s1.25-28.62,4.22-33.34c2.96-4.62,8.32-6.16,19.15-6.16c19.38,0,22.57,6.36,22.57,22.88 c0,1.95-0.11,4.31-0.23,6.87h-16.76c0-8.21-0.34-10.46-0.8-11.9c-0.34-1.33-1.82-1.95-4.79-1.95c-2.85,0-3.99,0.62-4.45,1.95 c-0.8,2.05-1.14,4.62-1.14,21.44c0,17.13,0.34,19.6,1.14,21.85c0.46,1.33,1.6,1.85,5.02,1.85c2.39,0,3.65-0.51,4.1-1.74 c1.14-2.87,1.25-5.64,1.25-12H436.13z" />
+              <path d="M458.93,95.49V34.24h-13.57V17.83h45.03v16.42h-13.57v61.25H458.93z" />
+              <path
+                d="M522.31,96.83c-11.06,0-16.19-1.54-19.15-6.36c-2.96-4.72-4.22-9.44-4.22-33.86s1.25-28.93,4.22-33.75 c2.96-4.72,8.09-6.36,19.15-6.36c10.94,0,16.07,1.64,19.04,6.36c2.96,4.82,4.22,9.34,4.22,33.75s-1.25,29.14-4.22,33.86 C538.38,95.29,533.25,96.83,522.31,96.83z M527.78,56.2c0-17.13-0.34-19.9-1.03-21.85c-0.57-1.33-1.6-1.95-4.45-1.95 c-2.85,0-3.99,0.62-4.45,1.95c-0.8,1.95-1.14,4.72-1.14,21.85c0,16.62,0.34,19.39,1.14,21.44c0.46,1.33,1.6,1.85,4.45,1.85 c2.85,0,3.88-0.51,4.45-1.85C527.44,75.59,527.78,72.82,527.78,56.2z" />
+              <path
+                d="M585.92,95.49c-0.91-2.57-1.25-4.1-3.53-22.06c-0.8-7.18-1.82-8.21-4.1-8.21h-2.74v30.27h-17.9V17.83h26.11 c15.5,0,19.49,5.95,19.49,20.93c0,16.01-2.51,17.13-7.41,19.7v0.62c0.91,0.72,1.94,1.33,2.74,3.18c1.25,2.46,2.51,7.08,3.76,16.11 c1.71,12.62,1.82,14.36,2.62,16.62v0.51H585.92z M580.56,50.76c3.31,0,4.56-2.05,4.56-9.23c0-6.16-1.48-7.7-5.02-7.7h-4.56v16.93 H580.56z" />
+              <path
+                d="M293.89,192v-77.67h25.88c15.39,0,19.49,6.77,19.49,26.68c0,20.31-4.1,27.6-19.49,27.6h-7.98V192H293.89z M316.58,152.61c3.31,0,4.56-2.67,4.56-12c0-8.21-1.48-10.05-5.02-10.05h-4.33v22.06H316.58z" />
+              <path
+                d="M372.89,193.34c-11.06,0-16.19-1.54-19.15-6.36c-2.96-4.72-4.22-9.44-4.22-33.86 c0-24.42,1.25-28.93,4.22-33.76c2.96-4.72,8.09-6.36,19.15-6.36c10.94,0,16.07,1.64,19.04,6.36c2.96,4.82,4.22,9.34,4.22,33.76 c0,24.42-1.25,29.14-4.22,33.86C388.97,191.8,383.84,193.34,372.89,193.34z M378.37,152.71c0-17.13-0.34-19.9-1.03-21.85 c-0.57-1.33-1.6-1.95-4.45-1.95c-2.85,0-3.99,0.62-4.45,1.95c-0.8,1.95-1.14,4.72-1.14,21.85c0,16.62,0.34,19.39,1.14,21.44 c0.46,1.33,1.6,1.85,4.45,1.85c2.85,0,3.88-0.51,4.45-1.85C378.02,172.1,378.37,169.33,378.37,152.71z" />
+              <path d="M410.51,168.71l-2.28-57.56h19.61l-2.05,57.56H410.51z M409.15,192v-15.49h17.9V192H409.15z" />
+              <path
+                d="M478.68,192l-20.41-41.65h-0.68V192h-16.3v-77.67h17.56l12.08,26.98h0.68v-26.98h16.42V192H478.68z" />
+              <path d="M512.43,192v-61.25h-13.57v-16.42h45.03v16.42h-13.57V192H512.43z" />
+              <path
+                d="M16.04,16.51v177H262.1v-177H16.04z M92.9,158.85L42.49,51.18h31.82l25.31,57.69l25.24-57.69h31.42 l-50.21,107.67H92.9z M123.01,158.85l30.45-65.22h31.39l-32.33,65.22H123.01z M180.77,134.77l25.42-55.17l-46.1-0.01l13.25-28.4 l46.35,0.01l15.96,28.36L180.77,134.77z" />
+            </g>
+          </symbol>
+
+          <symbol id="sponsor-worldcup26ir" viewBox="0 0 1050 210">
+            <g fill="currentColor">
+              <path
+                d="M110,25 L35,68.3 L35,155 L110,198.3 L185,155 L185,68.3 L110,25 Z M167,144.6 L110,177.5 L53,144.6 L53,78.7 L110,45.8 L167,78.7 L167,144.6 Z" />
+              <path
+                d="M110,65 L75,85.2 L75,125.8 L110,146 L145,125.8 L145,85.2 L110,65 Z M127.5,115.7 L110,125.8 L92.5,115.7 L92.5,95.3 L110,85.2 L127.5,95.3 L127.5,115.7 Z" />
+
+              <!-- W -->
+              <path
+                d="M250,65 H266 L274,110 L284,65 H298 L308,110 L316,65 H332 L316,125 H300 L291,82 L282,125 H266 L250,65 Z" />
+              <!-- O -->
+              <path
+                d="M345,95 C345,76 358,65 378,65 C398,65 411,76 411,95 C411,114 398,125 378,125 C358,125 345,114 345,95 Z M363,95 C363,106 369,110 378,110 C387,110 393,106 393,95 C393,84 387,80 378,80 C369,80 363,84 363,95 Z" />
+              <!-- R -->
+              <path
+                d="M424,65 H459 C473,65 482,73 482,87 C482,98 475,105 464,108 L484,125 H463 L446,110 H442 V125 H424 V65 Z M442,80 V95 H456 C462,95 465,92 465,87 C465,82 462,80 456,80 H442 Z" />
+              <!-- L -->
+              <path d="M495,65 H513 V110 H540 V125 H495 V65 Z" />
+              <!-- D -->
+              <path
+                d="M551,65 H586 C606,65 619,76 619,95 C619,114 606,125 586,125 H551 V65 Z M569,80 V110 H583 C593,110 601,104 601,95 C601,86 593,80 583,80 H569 Z" />
+
+              <!-- C -->
+              <path
+                d="M632,95 C632,76 645,65 665,65 C681,65 692,72 696,85 L679,90 C677,83 672,80 665,80 C655,80 650,86 650,95 C650,104 655,110 665,110 C672,110 677,107 679,100 L696,105 C692,118 681,125 665,125 C645,125 632,114 632,95 Z" />
+              <!-- U -->
+              <path
+                d="M707,65 H725 V105 C725,108 728,110 734,110 C740,110 743,108 743,105 V65 H761 V105 C761,118 752,125 734,125 C716,125 707,118 707,105 V65 Z" />
+              <!-- P -->
+              <path
+                d="M772,65 H807 C822,65 832,74 832,90 C832,106 822,115 807,115 H790 V125 H772 V65 Z M790,80 V100 H805 C812,100 815,96 815,90 C815,84 812,80 805,80 H790 Z" />
+
+              <!-- 2 -->
+              <path
+                d="M848,80 C848,70 856,65 868,65 C880,65 888,70 888,80 C888,89 882,93 873,98 L863,103 V110 H889 V125 H846 V102 L870,89 C873,87 875,85 875,81 C875,77 872,75 868,75 C864,75 861,77 861,81 L848,80 Z" />
+              <!-- 6 -->
+              <path
+                d="M935,65 C921,65 911,75 911,95 C911,114 921,125 936,125 C950,125 960,117 960,104 C960,92 951,84 939,84 C935,84 932,85 929,87 C930,80 935,77 941,77 C946,77 950,79 953,82 L962,71 C957,67 947,65 935,65 Z M935,98 C940,98 943,100 943,104 C943,108 940,110 935,110 C930,110 928,108 928,104 C928,100 930,98 935,98 Z" />
+
+              <!-- . -->
+              <path d="M972,112 H988 V125 H972 V112 Z" />
+
+              <!-- I -->
+              <path d="M998,65 H1016 V125 H998 V65 Z" />
+              <!-- R -->
+              <path
+                d="M1024,65 H1059 C1073,65 1082,73 1082,87 C1082,98 1075,105 1064,108 L1050,125 V108 H1042 V125 H1024 V65 Z M1042,80 V95 H1056 C1062,95 1065,92 1065,87 C1065,82 1062,80 1056,80 H1042 Z" />
+            </g>
+          </symbol>
+        </svg>
+
+        <h2 class="card-title"><i class="fa-solid fa-handshake"></i> Official Partners</h2>
+        <div class="marquee-wrapper">
+          <div class="marquee-track">
+            <!-- Set 1 -->
+            <div class="sponsor-logo">
+              <svg viewBox="0 0 885 210">
+                <use href="#sponsor-devlowper"></use>
+              </svg>
+            </div>
+            <div class="sponsor-logo">
+              <svg viewBox="0 0 624 210">
+                <use href="#sponsor-vectorpoint"></use>
+              </svg>
+            </div>
+            <div class="sponsor-logo">
+              <svg viewBox="0 0 850 210">
+                <use href="#sponsor-worldcup26ir"></use>
+              </svg>
+            </div>
+
+            <!-- Set 2 -->
+            <div class="sponsor-logo">
+              <svg viewBox="0 0 885 210">
+                <use href="#sponsor-devlowper"></use>
+              </svg>
+            </div>
+            <div class="sponsor-logo">
+              <svg viewBox="0 0 624 210">
+                <use href="#sponsor-vectorpoint"></use>
+              </svg>
+            </div>
+            <div class="sponsor-logo">
+              <svg viewBox="0 0 850 210">
+                <use href="#sponsor-worldcup26ir"></use>
+              </svg>
+            </div>
+
+            <!-- Set 3 -->
+            <div class="sponsor-logo">
+              <svg viewBox="0 0 885 210">
+                <use href="#sponsor-devlowper"></use>
+              </svg>
+            </div>
+            <div class="sponsor-logo">
+              <svg viewBox="0 0 624 210">
+                <use href="#sponsor-vectorpoint"></use>
+              </svg>
+            </div>
+            <div class="sponsor-logo">
+              <svg viewBox="0 0 850 210">
+                <use href="#sponsor-worldcup26ir"></use>
+              </svg>
+            </div>
+
+            <!-- Set 4 (Duplicate for seamless loop) -->
+            <div class="sponsor-logo">
+              <svg viewBox="0 0 885 210">
+                <use href="#sponsor-devlowper"></use>
+              </svg>
+            </div>
+            <div class="sponsor-logo">
+              <svg viewBox="0 0 624 210">
+                <use href="#sponsor-vectorpoint"></use>
+              </svg>
+            </div>
+            <div class="sponsor-logo">
+              <svg viewBox="0 0 850 210">
+                <use href="#sponsor-worldcup26ir"></use>
+              </svg>
+            </div>
+
+            <!-- Set 5 -->
+            <div class="sponsor-logo">
+              <svg viewBox="0 0 885 210">
+                <use href="#sponsor-devlowper"></use>
+              </svg>
+            </div>
+            <div class="sponsor-logo">
+              <svg viewBox="0 0 624 210">
+                <use href="#sponsor-vectorpoint"></use>
+              </svg>
+            </div>
+            <div class="sponsor-logo">
+              <svg viewBox="0 0 850 210">
+                <use href="#sponsor-worldcup26ir"></use>
+              </svg>
+            </div>
+
+            <!-- Set 6 -->
+            <div class="sponsor-logo">
+              <svg viewBox="0 0 885 210">
+                <use href="#sponsor-devlowper"></use>
+              </svg>
+            </div>
+            <div class="sponsor-logo">
+              <svg viewBox="0 0 624 210">
+                <use href="#sponsor-vectorpoint"></use>
+              </svg>
+            </div>
+            <div class="sponsor-logo">
+              <svg viewBox="0 0 850 210">
+                <use href="#sponsor-worldcup26ir"></use>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ===== SECTION: LIVE SCORES ===== -->
+    <section id="section-live" class="section-panel">
+      <div class="page-title-area">
+        <div class="live-indicator" style="margin-bottom: 8px;">
+          <span class="live-dot"></span>
+          <span>Live Matches</span>
+        </div>
+        <h1 class="page-title">Live Scores</h1>
+        <p class="page-subtitle">Real-time match updates from the pitch. Auto-refreshes every 30 seconds.</p>
+      </div>
+
+      <!-- Live Match Cards Area (Dynamic or Empty state container) -->
+      <div id="live-matches-area" style="margin-top: 24px;">
+        <!-- Live Fixture Match Cards Grid -->
+        <div id="live-container" class="grid-2-col">
+          <div class="card skeleton-shimmer" style="height: 160px;"></div>
+          <div class="card skeleton-shimmer" style="height: 160px;"></div>
+        </div>
+
+        <!-- Empty Live Matches State -->
+        <div id="live-empty" class="empty-state hidden" style="margin-top: 16px;">
+          <div class="empty-state-icon"><i class="fa-solid fa-calendar-xmark"></i></div>
+          <div class="empty-state-title">No Matches Live Right Now</div>
+          <div class="empty-state-desc">There are currently no matches in progress. You can check the upcoming fixtures
+            and standings below.</div>
+        </div>
+      </div>
+
+      <!-- Full Schedule Block (Date carousel + filtered match grid) -->
+      <div id="live-schedule-block" style="margin-top: 48px;">
+        <h2 class="card-title" style="margin-bottom: 16px;"><i class="fa-solid fa-calendar-days"></i> Full Schedule</h2>
+        <!-- Date Horizontal Select Carousel -->
+        <div class="schedule-dates-container" style="margin-top: 16px;">
+          <div id="live-schedule-dates" class="schedule-dates-scroll">
+            <!-- Populated dynamically by JS -->
+          </div>
+        </div>
+        <!-- Match Cards Grid -->
+        <div id="live-schedule-container" class="grid-3-col" style="margin-top: 16px;">
+          <div class="card skeleton-shimmer" style="height: 160px;"></div>
+          <div class="card skeleton-shimmer" style="height: 160px;"></div>
+          <div class="card skeleton-shimmer" style="height: 160px;"></div>
+        </div>
+      </div>
+
+      <!-- Standings Table Block (Group tabs + table container) -->
+      <div id="live-standings-block" style="margin-top: 48px;">
+        <h2 class="card-title" style="margin-bottom: 16px;"><i class="fa-solid fa-ranking-star"></i> Standings</h2>
+        <!-- Group Stage Tabs -->
+        <div class="tabs-wrapper" style="margin-top: 16px;">
+          <div id="live-group-tabs" class="group-tabs">
+            <!-- Populated dynamically by JS -->
+          </div>
+        </div>
+        <!-- Standings Table Container -->
+        <div id="live-standings-container" style="margin-top: 16px;">
+          <div class="card skeleton-shimmer" style="height: 300px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SECTION: LIVE STREAM ===== -->
+    <section id="section-stream" class="section-panel">
+      <div class="page-title-area">
+        <h1 class="page-title">Live Stream</h1>
+        <p class="page-subtitle">Watch live matches with real-time stats and commentary side-by-side.</p>
+      </div>
+
+      <div id="stream-player-area" style="margin-top: 24px;">
+        <div class="stream-layout">
+          <!-- Video Screen Container -->
+          <div>
+            <div class="video-container" style="position: relative;">
+              <video id="video-player" controls class="video-player"></video>
+
+              <!-- Blinking Live Badge overlayed on player -->
+              <div style="position: absolute; top: 16px; left: 16px; z-index: 10;">
+                <span class="live-badge"><i class="fa-solid fa-circle"></i> Live</span>
+              </div>
+            </div>
+
+            <!-- TABS BELOW STREAM PLAYER (Channels | Schedule | Stats & Clips) -->
+            <div class="stream-tabs">
+              <button class="stream-tab-btn active" onclick="switchStreamTab('channels')">
+                <i class="fa-solid fa-tv"></i> Channels
+              </button>
+              <button class="stream-tab-btn" onclick="switchStreamTab('schedule')">
+                <i class="fa-solid fa-calendar-day"></i> Schedule
+              </button>
+              <button class="stream-tab-btn" onclick="switchStreamTab('stats')">
+                <i class="fa-solid fa-chart-bar"></i> Stats & Clips
+              </button>
+            </div>
+
+            <!-- Tabs Content Area -->
+            <div>
+              <!-- Channels Content -->
+              <div id="stream-tab-channels" class="stream-tab-content active">
+                <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 8px;">Available Broadcast Feeds</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Choose your camera angle and local
+                  commentary broadcast.</p>
+                <div id="stream-channels-list"
+                  style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px;">
+                  <!-- Dynamically loaded channel cards -->
+                </div>
+              </div>
+
+              <!-- Schedule Content -->
+              <div id="stream-tab-schedule" class="stream-tab-content">
+                <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 8px;">Today's Broadcast Schedule</h4>
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;"
+                  id="stream-schedule-ticker">
+                  <!-- Mapped in JS -->
+                </div>
+              </div>
+
+              <!-- Stats & Clips Content -->
+              <div id="stream-tab-stats" class="stream-tab-content">
+                <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 8px;">Match Highlights & Key Clips</h4>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px;">
+                  <div class="card" style="padding: 12px; font-size: 0.8rem; cursor: pointer;">
+                    <i class="fa-solid fa-circle-play"
+                      style="color:var(--accent-color); font-size: 1.2rem; margin-bottom: 6px; display:block;"></i>
+                    <strong>Goal 1 - 24'</strong>
+                    <span
+                      style="display:block; color:var(--text-secondary); font-size: 0.7rem; margin-top: 2px;">Vibrant
+                      strike from home team.</span>
+                  </div>
+                  <div class="card" style="padding: 12px; font-size: 0.8rem; cursor: pointer;">
+                    <i class="fa-solid fa-circle-play"
+                      style="color:var(--accent-color); font-size: 1.2rem; margin-bottom: 6px; display:block;"></i>
+                    <strong>Yellow Card - 41'</strong>
+                    <span
+                      style="display:block; color:var(--text-secondary); font-size: 0.7rem; margin-top: 2px;">Tactical
+                      foul in the midfield.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Match Statistics / Commentary Sidebar -->
+          <div class="stream-sidebar">
+            <!-- Next Match Indicator Ticker Card -->
+            <div class="card"
+              style="padding: 16px; display: flex; flex-direction: column; gap: 12px; border-color: var(--accent-color);">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 0.7rem; font-weight: 800; color: var(--accent-color);"><i
+                    class="fa-solid fa-tv"></i> Live Ticker</span>
+                <span class="live-indicator" style="font-size: 0.6rem; padding: 2px 6px;"><span class="live-dot"></span>
+                  Next Match</span>
+              </div>
+              <div id="stream-next-match-ticker"
+                style="font-size: 0.85rem; font-weight: 800; display:flex; justify-content:space-between; align-items:center;">
+                <!-- Filled by JS -->
+              </div>
+            </div>
+
+            <!-- Match Info Bar -->
+            <div class="card">
+              <div class="stream-card-header"><i class="fa-solid fa-circle-info"></i> Match Information</div>
+              <div id="stream-match-info" class="stream-details-list">
+                <div class="empty-state" style="padding: 24px; border: none;">
+                  <p>Select a match to view details.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Commentary -->
+            <div class="card">
+              <div class="stream-card-header"><i class="fa-solid fa-volume-high"></i> Live Text Commentary</div>
+              <div class="commentary-list">
+                <div class="commentary-item">
+                  <div class="commentary-time">90'</div>
+                  <div class="commentary-text">Full time! What a match we have witnessed here.</div>
+                </div>
+                <div class="commentary-item">
+                  <div class="commentary-time">88'</div>
+                  <div class="commentary-text">Corner kick awarded. Defense stands strong.</div>
+                </div>
+                <div class="commentary-item">
+                  <div class="commentary-time">82'</div>
+                  <div class="commentary-text">Substitution for the home squad to secure the defense.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty Stream State -->
+      <div id="stream-empty" class="empty-state hidden" style="margin-top: 24px;">
+        <div class="empty-state-icon"><i class="fa-solid fa-tv"></i></div>
+        <div class="empty-state-title">No Active Broadcasts</div>
+        <div class="empty-state-desc">Live video streams will appear here as matches kickoff. View upcoming fixtures in
+          the tournament schedule.</div>
+        <button class="btn btn-primary" onclick="showSection('schedule')">View Upcoming Matches</button>
+      </div>
+    </section>
+
+    <!-- ===== SECTION: SCHEDULE ===== -->
+    <section id="section-schedule" class="section-panel">
+      <div class="page-title-area">
+        <h1 class="page-title schedule-page-title">Match Schedule</h1>
+        <p class="page-subtitle">Full schedule of matches across USA, Canada, and Mexico. Select a date to filter
+          matches.</p>
+      </div>
+
+      <!-- Date Horizontal Select Carousel -->
+      <div class="schedule-dates-container" style="margin-top: 24px;">
+        <div id="schedule-dates" class="schedule-dates-scroll">
+          <!-- Populated dynamically by JS -->
+        </div>
+      </div>
+
+      <!-- Match Cards Grid -->
+      <div id="schedule-container" class="grid-3-col">
+        <div class="card skeleton-shimmer" style="height: 160px;"></div>
+        <div class="card skeleton-shimmer" style="height: 160px;"></div>
+        <div class="card skeleton-shimmer" style="height: 160px;"></div>
+      </div>
+    </section>
+
+
+    <!-- ===== SECTION: VENUES ===== -->
+    <section id="section-venues" class="section-panel">
+      <div class="page-title-area">
+        <h1 class="page-title">Host Stadiums</h1>
+        <p class="page-subtitle">16 world-class venues welcoming the world to North America.</p>
+      </div>
+
+      <div id="venues-container" class="grid-3-col" style="margin-top: 24px;">
+        <div class="card skeleton-shimmer" style="height: 240px;"></div>
+        <div class="card skeleton-shimmer" style="height: 240px;"></div>
+        <div class="card skeleton-shimmer" style="height: 240px;"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-column footer-brand-column">
+          <a href="#" class="footer-brand" onclick="showSection('home'); return false;">
+            <i class="fa-solid fa-futbol"></i>
+            <span>World Cup <strong>2026</strong></span>
+          </a>
+          <p class="footer-desc">The official tournament companion web app.</p>
+          <div class="footer-meta-list">
+            <span><i class="fa-solid fa-calendar-days"></i> June 11 - July 19, 2026</span>
+            <span><i class="fa-solid fa-earth-americas"></i> USA &bull; Mexico &bull; Canada</span>
+          </div>
+        </div>
+
+        <div class="footer-column">
+          <h3 class="footer-heading">Quick Links</h3>
+          <nav class="footer-links" aria-label="Footer quick links">
+            <a href="#" onclick="showSection('home'); return false;"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="#" onclick="showSection('live'); return false;"><i class="fa-solid fa-futbol"></i> Live Scores</a>
+            <a href="#" onclick="showSection('stream'); return false;"><i class="fa-solid fa-tv"></i> Live Stream</a>
+            <a href="#" onclick="showSection('schedule'); return false;"><i class="fa-solid fa-calendar-days"></i>
+              Schedule</a>
+          </nav>
+        </div>
+
+        <div class="footer-column">
+          <h3 class="footer-heading">Credits &amp; Data Sources</h3>
+          <div class="footer-credit-group">
+            <span class="footer-muted">Data provided by:</span>
+            <a href="https://worldcup26.ir" target="_blank" rel="noopener noreferrer"><i
+                class="fa-solid fa-database"></i> worldcup26.ir</a>
+            <a href="https://www.football-data.org" target="_blank" rel="noopener noreferrer"><i
+                class="fa-solid fa-chart-line"></i> football-data.org</a>
+          </div>
+          <a class="footer-developer" href="https://github.com/devlowper" target="_blank" rel="noopener noreferrer">
+            Developed by <span style="font-weight:600; text-decoration: underline;">Rakib Ahmed</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 devlowper. All rights reserved.</p>
+        <p>Built with care for football fans worldwide.</p>
+        <p>Powered by worldcup26.ir &amp; football-data.org API.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- App Script -->
+  <script src="app.js"></script>
+</body>
+
+</html>
