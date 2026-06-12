@@ -75,10 +75,14 @@ const STADIUM_NAME_IMAGE_KEYS = {
 
 // Stream Channel configurations
 const STREAM_CHANNELS = [
-  { id: '1', name: 'T Sports HD', category: 'Sports', url: 'http://103.151.61.12/T-Sports.kutta/video.m3u8' },
-  { id: '2', name: 'BTV National (1080p)', category: 'General', url: 'https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/1709.m3u8' },
-  { id: '3', name: 'FIFA+', category: 'Sports', url: 'https://d2w9q46ikgrcwx.cloudfront.net/v1/sysdata_s_p_a_fifa_7/samsungheadend_us/latest/main/hls/playlist.m3u8' },
-  { id: '4', name: 'FIFA+ English (720p)', category: 'Sports', url: 'https://a62dad94.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWV1X0ZJRkFQbHVzRW5nbGlzaF9ITFM/playlist.m3u8' }
+  { id: 'fifa-ch1', name: 'FIFA CH1', category: 'FIFA Live', type: 'hls', url: 'https://cdn.yallashooot.pp.ua/hls/ch1.m3u8' },
+  { id: 'fifa-ch2', name: 'FIFA CH2', category: 'FIFA Live', type: 'hls', url: 'https://s3.us-east-1.amazonaws.com/yalapro1/hls/0/stream.m3u8' },
+  { id: 'fifa-ch3', name: 'FIFA CH3', category: 'FIFA Live', type: 'hls', url: 'https://pruiaaaaaaa.yallaliveshoot.info/hls/ch1/master.m3u8' },
+  { id: 'fifa-ch4', name: 'FIFA CH4', category: 'FIFA Live', type: 'hls', url: 'https://2.78542.qzz.io/hls/1/stream.m3u8' },
+  { id: 't-sports', name: 'T Sports HD', category: 'Sports', type: 'hls', url: 'http://103.151.61.12/T-Sports.kutta/video.m3u8' },
+  { id: 'btv-national', name: 'BTV National (1080p)', category: 'General', type: 'hls', url: 'https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/1709.m3u8' },
+  { id: 'ntv', name: 'NTV', category: 'Embedded TV', type: 'iframe', url: 'https://ntv.cx/embed?t=U3kvVGsxU1RSbFNVNzYraHQ0eDVFWktGeGVzQkNwSHdpdVRML1F2aWtWSXl2ejBReHNlWWJDTnFoMWhrbFQ3ZTFRTlVMWkJERWwwbTBaN2F0VGtzTWc9PQ~~' },
+  { id: 'bitv', name: 'BiTV', category: 'Embedded TV', type: 'iframe', url: 'https://bintv1.blogspot.com/?q=https://prabashsapkota.github.io/ads/?url=https://prabashsapkota.github.io/willo/' }
 ];
 
 // ─── STATE MANAGEMENT ─────────────────────────────────────────
@@ -91,7 +95,7 @@ let state = {
   currentGroupTab: 'A',
   scheduleSelectedDate: null,
   loaded: false,
-  activeChannelId: '1',
+  activeChannelId: 'fifa-ch1',
   lastScores: {},
 };
 
@@ -1240,12 +1244,21 @@ let currentHlsInstance = null;
 
 function playStream(url) {
   const video = document.getElementById('video-player');
+  const iframe = document.getElementById('iframe-player');
   if (!video) return;
   
   if (currentHlsInstance) {
     currentHlsInstance.destroy();
     currentHlsInstance = null;
   }
+
+  if (iframe) {
+    iframe.src = '';
+    iframe.classList.add('hidden');
+  }
+  video.classList.remove('hidden');
+  video.removeAttribute('src');
+  video.load();
   
   if (window.Hls && Hls.isSupported()) {
     const hls = new Hls();
@@ -1259,11 +1272,33 @@ function playStream(url) {
   }
 }
 
+function playEmbeddedStream(url) {
+  const video = document.getElementById('video-player');
+  const iframe = document.getElementById('iframe-player');
+  if (!iframe || !video) return;
+
+  if (currentHlsInstance) {
+    currentHlsInstance.destroy();
+    currentHlsInstance = null;
+  }
+
+  video.pause();
+  video.removeAttribute('src');
+  video.load();
+  video.classList.add('hidden');
+  iframe.src = url;
+  iframe.classList.remove('hidden');
+}
+
 function selectChannel(id) {
   state.activeChannelId = id;
   const channel = STREAM_CHANNELS.find(c => c.id === id);
   if (channel) {
-    playStream(channel.url);
+    if (channel.type === 'iframe') {
+      playEmbeddedStream(channel.url);
+    } else {
+      playStream(channel.url);
+    }
     renderChannelsList();
   }
 }
@@ -1275,7 +1310,7 @@ function renderChannelsList() {
   container.innerHTML = STREAM_CHANNELS.map(c => `
     <div class="card channel-card ${state.activeChannelId === c.id ? 'active-channel' : ''}" onclick="selectChannel('${c.id}')" style="cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 12px;">
       <div style="width: 40px; height: 40px; background-color: var(--accent-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 1.2rem;">
-        <i class="fa-solid fa-play"></i>
+        <i class="fa-solid ${c.type === 'iframe' ? 'fa-up-right-from-square' : 'fa-play'}"></i>
       </div>
       <div>
         <h4 style="font-size: 0.9rem; font-weight: 800;">${c.name}</h4>
