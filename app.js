@@ -79,7 +79,12 @@ const STREAM_CHANNELS = [
   { id: 'fifa-ch2', name: 'FIFA CH2', category: 'FIFA Live', type: 'hls', url: 'https://s3.us-east-1.amazonaws.com/yalapro1/hls/0/stream.m3u8' },
   { id: 'fifa-ch3', name: 'FIFA CH3', category: 'FIFA Live', type: 'hls', url: 'https://pruiaaaaaaa.yallaliveshoot.info/hls/ch1/master.m3u8' },
   { id: 'fifa-ch4', name: 'FIFA CH4', category: 'FIFA Live', type: 'hls', url: 'https://2.78542.qzz.io/hls/1/stream.m3u8' },
-  { id: 't-sports', name: 'T Sports HD', category: 'Sports', type: 'hls', url: 'http://103.151.61.12/T-Sports.kutta/video.m3u8' },
+  { id: 'fifa-ch5', name: 'FIFA CH5', category: 'FIFA Live', type: 'hls', url: 'https://1nyaler.streamhostingcdn.top/stream/94/index.m3u8' },
+  { id: 'fifa-ch6', name: 'FIFA CH6', category: 'FIFA Live', type: 'hls', url: 'https://1nyaler.streamhostingcdn.top/stream/3/index.m3u8' },
+  { id: 'fifa-ch7', name: 'FIFA CH7', category: 'FIFA Live', type: 'hls', url: 'https://1nyaler.streamhostingcdn.top/stream/84/index.m3u8' },
+  { id: 'fox-sports', name: 'Fox Sports', category: 'International', type: 'iframe', url: 'https://embed.st/embed/admin/ppv-brazil-vs-morocco/3' },
+  { id: 'bbc-one', name: 'BBC One', category: 'International', type: 'iframe', url: 'https://embed.st/embed/admin/ppv-brazil-vs-morocco/1' },
+  { id: 't-sports', name: 'T Sports HD', category: 'Sports', type: 'hls', url: 'http://198.195.239.50:8095/tsports/index.m3u8' },
   { id: 'btv-national', name: 'BTV National (1080p)', category: 'General', type: 'hls', url: 'https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/1709.m3u8' },
   { id: 'ntv', name: 'NTV', category: 'Embedded TV', type: 'iframe', url: 'https://ntv.cx/embed?t=U3kvVGsxU1RSbFNVNzYraHQ0eDVFWktGeGVzQkNwSHdpdVRML1F2aWtWSXl2ejBReHNlWWJDTnFoMWhrbFQ3ZTFRTlVMWkJERWwwbTBaN2F0VGtzTWc9PQ~~' },
   { id: 'bitv', name: 'BiTV', category: 'Embedded TV', type: 'iframe', url: 'https://bintv1.blogspot.com/?q=https://prabashsapkota.github.io/ads/?url=https://prabashsapkota.github.io/willo/' }
@@ -88,9 +93,9 @@ const STREAM_CHANNELS = [
 // ─── STATE MANAGEMENT ─────────────────────────────────────────
 let state = {
   games: [],
-  teams: {},       // keyed by ID
-  groups: [],      // groups standings
-  stadiums: {},    // keyed by ID
+  teams: {},              // keyed by ID
+  groups: [],             // groups standings
+  stadiums: {},           // keyed by ID
   currentSection: 'home',
   currentGroupTab: 'A',
   scheduleSelectedDate: null,
@@ -110,36 +115,36 @@ function extractAccentColor(imageUrl, callback) {
   img.crossOrigin = 'Anonymous';
   img.src = imageUrl;
 
-  img.onload = function() {
+  img.onload = function () {
     try {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       canvas.width = 16;
       canvas.height = 16;
       ctx.drawImage(img, 0, 0, 16, 16);
-      
+
       const imgData = ctx.getImageData(0, 0, 16, 16).data;
-      
+
       let r = 0, g = 0, b = 0, count = 0;
       for (let i = 0; i < imgData.length; i += 4) {
         const pr = imgData[i];
-        const pg = imgData[i+1];
-        const pb = imgData[i+2];
-        const pa = imgData[i+3];
-        
+        const pg = imgData[i + 1];
+        const pb = imgData[i + 2];
+        const pa = imgData[i + 3];
+
         if (pa < 120) continue; // Skip transparency
-        
+
         // Filter out pure whites, pure blacks, and grays
         const max = Math.max(pr, pg, pb);
         const min = Math.min(pr, pg, pb);
         if (max - min < 25) continue;
-        
+
         r += pr;
         g += pg;
         b += pb;
         count++;
       }
-      
+
       if (count > 0) {
         r = Math.round(r / count);
         g = Math.round(g / count);
@@ -151,15 +156,15 @@ function extractAccentColor(imageUrl, callback) {
         // Average color fallback
         let tr = 0, tg = 0, tb = 0, tc = 0;
         for (let i = 0; i < imgData.length; i += 4) {
-          if (imgData[i+3] > 200) {
+          if (imgData[i + 3] > 200) {
             tr += imgData[i];
-            tg += imgData[i+1];
-            tb += imgData[i+2];
+            tg += imgData[i + 1];
+            tb += imgData[i + 2];
             tc++;
           }
         }
         if (tc > 0) {
-          const rgbStr = `rgb(${Math.round(tr/tc)}, ${Math.round(tg/tc)}, ${Math.round(tb/tc)})`;
+          const rgbStr = `rgb(${Math.round(tr / tc)}, ${Math.round(tg / tc)}, ${Math.round(tb / tc)})`;
           colorCache[imageUrl] = rgbStr;
           callback(rgbStr);
         } else {
@@ -171,7 +176,7 @@ function extractAccentColor(imageUrl, callback) {
     }
   };
 
-  img.onerror = function() {
+  img.onerror = function () {
     callback(null);
   };
 }
@@ -219,7 +224,7 @@ function showSection(id) {
   document.querySelectorAll('.section-panel').forEach(s => {
     s.classList.remove('active-section');
   });
-  
+
   // Deactivate links in desktop navbar
   document.querySelectorAll('.navbar-link').forEach(b => {
     b.classList.remove('active');
@@ -324,7 +329,7 @@ function getMatchStatus(game) {
   const elapsed = (game.time_elapsed || '').toLowerCase();
   if (game.finished === 'TRUE' || game.finished === true || elapsed === 'finished') return 'finished';
   if (elapsed && elapsed !== 'notstarted' && elapsed !== 'not started' && elapsed !== '') return 'live';
-  
+
   const kickoff = getKickoffUTC(game);
   if (kickoff) {
     const now = new Date();
@@ -391,7 +396,7 @@ function formatCapacity(capacity) {
 }
 
 function getStageLabel(type) {
-  const map = { group:'Group Stage', r32:'Round of 32', r16:'Round of 16', qf:'Quarter-Final', sf:'Semi-Final', third:'3rd Place', final:'Final' };
+  const map = { group: 'Group Stage', r32: 'Round of 32', r16: 'Round of 16', qf: 'Quarter-Final', sf: 'Semi-Final', third: '3rd Place', final: 'Final' };
   return map[type] || type?.toUpperCase() || '';
 }
 
@@ -500,12 +505,12 @@ function getSimulatedLiveScore(game, elapsedMin) {
 
   const homeRand = pseudoRandom(seed * 11);
   const awayRand = pseudoRandom(seed * 17);
-  
+
   let homeFinal = 0;
   if (homeRand > 0.85) homeFinal = 3;
   else if (homeRand > 0.6) homeFinal = 2;
   else if (homeRand > 0.25) homeFinal = 1;
-  
+
   let awayFinal = 0;
   if (awayRand > 0.85) awayFinal = 3;
   else if (awayRand > 0.6) awayFinal = 2;
@@ -532,7 +537,7 @@ async function fetchJSON(url, useAuth = false) {
   if (useAuth) {
     headers['X-Auth-Token'] = API_TOKEN;
   }
-  
+
   try {
     const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
     const res = await fetch(proxyUrl, { headers, mode: 'cors' });
@@ -557,9 +562,9 @@ async function fetchAllData() {
     fetchJSON(ENDPOINTS.groups),
     fetchJSON(ENDPOINTS.teams)
   ]);
-  
+
   const matchesData = await fetchJSON(ENDPOINTS.matches, true);
-  
+
   // Map teams
   if (teamsData && teamsData.teams) {
     state.teams = {};
@@ -567,7 +572,7 @@ async function fetchAllData() {
       state.teams[String(t.id)] = t;
     });
   }
-  
+
   // Map stadiums
   if (stadiumsData && stadiumsData.stadiums) {
     state.stadiums = {};
@@ -575,30 +580,30 @@ async function fetchAllData() {
       state.stadiums[String(s.id)] = s;
     });
   }
-  
+
   // Map groups
   if (groupsData && groupsData.groups) {
     state.groups = groupsData.groups;
   }
-  
+
   // Map matches
   if (gamesData && gamesData.games) {
     state.games = gamesData.games.map(g => {
       let finalGame = g;
       const status = getMatchStatus(g);
-      
+
       // Simulate live score states for fixtures that are currently active in local time
       if (status === 'live' && g.time_elapsed === 'notstarted') {
         const kickoff = getKickoffUTC(g);
         const now = new Date();
         const diffMin = kickoff ? Math.floor((now - kickoff) / 60000) : 0;
-        
+
         let elapsedStr = `${diffMin}'`;
         if (diffMin > 45 && diffMin <= 60) elapsedStr = 'HT';
         else if (diffMin > 60) elapsedStr = `${diffMin - 15}'`;
-        
+
         const { homeScore: simHome, awayScore: simAway } = getSimulatedLiveScore(g, diffMin);
-        
+
         finalGame = {
           ...g,
           time_elapsed: elapsedStr,
@@ -640,7 +645,7 @@ async function fetchAllData() {
   }
 
   state.loaded = true;
-  
+
   // Render active section
   showSection(state.currentSection);
 }
@@ -653,7 +658,7 @@ function makeSportMatchCard(game, index = 0, isLiveTab = false) {
   const homeFlag = getTeamFlag(game, 'home');
   const awayFlag = getTeamFlag(game, 'away');
   const delay = index * 50;
-  
+
   let statusHtml = '';
   if (status === 'live') {
     statusHtml = `
@@ -665,18 +670,18 @@ function makeSportMatchCard(game, index = 0, isLiveTab = false) {
     statusHtml = `<span class="btn btn-outline btn-sm" style="color:var(--text-secondary); border-color:var(--border-color); cursor:default; font-size:0.65rem; padding:4px 8px; border-radius:6px;"><i class="fa-solid fa-circle-check"></i> FT</span>`;
   } else {
     const timeStr = game.local_date ? game.local_date.split(' ')[1] : '';
-    const ampmTime = timeStr ? new Date(`1970/01/01 ${timeStr}`).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'}) : 'VS';
+    const ampmTime = timeStr ? new Date(`1970/01/01 ${timeStr}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'VS';
     statusHtml = `<span class="btn btn-outline btn-sm" style="color:var(--accent-color); border-color:var(--border-color); cursor:default; font-size:0.65rem; padding:4px 8px; border-radius:6px;"><i class="fa-solid fa-clock"></i> ${ampmTime}</span>`;
   }
-  
+
   const stageLabel = game.group ? `Group ${game.group}` : getStageLabel(game.type);
-  
+
   const flagHtml = (flag, name) => flag
     ? `<img src="${flag}" alt="${name}" class="team-flag-img" onerror="this.style.opacity=0">`
     : `<div class="team-flag-img" style="background-color:var(--bg-secondary); display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-flag" style="font-size:10px; color:var(--text-secondary);"></i></div>`;
-  
+
   const cardId = `match-card-${game.id}`;
-  
+
   // Dynamic color extraction
   if (homeFlag) {
     extractAccentColor(homeFlag, (color) => {
@@ -689,7 +694,7 @@ function makeSportMatchCard(game, index = 0, isLiveTab = false) {
       }
     });
   }
-  
+
   // Possession Split bar statistics
   let possessionHtml = '';
   if (isLiveTab || status === 'live') {
@@ -706,7 +711,7 @@ function makeSportMatchCard(game, index = 0, isLiveTab = false) {
         </div>
       </div>`;
   }
-  
+
   return `
     <div class="card" id="${cardId}" style="animation-delay: ${delay}ms;">
       <div class="match-header">
@@ -754,7 +759,7 @@ function makeSpotlightCard(game, type, index = 0) {
   const awayFlag = getTeamFlag(game, 'away');
   const stadName = getStadiumName(game.stadium_id);
   const stageLabel = game.group ? `Group ${game.group}` : getStageLabel(game.type);
-  
+
   const flagHtml = (flag, name) => flag
     ? `<img src="${flag}" alt="${name}" class="spotlight-flag" onerror="this.style.opacity=0">`
     : `<div class="spotlight-flag" style="background-color:var(--bg-secondary); display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-flag" style="font-size:24px; color:var(--text-secondary);"></i></div>`;
@@ -764,7 +769,7 @@ function makeSpotlightCard(game, type, index = 0) {
     : `<span>${game.home_score}</span><span style="color: var(--accent-color); font-weight: 900;">-</span><span>${game.away_score}</span>`;
 
   const cardId = `spotlight-card-${game.id}`;
-  
+
   if (homeFlag) {
     extractAccentColor(homeFlag, (color) => {
       if (color) {
@@ -809,7 +814,7 @@ function renderHome() {
   const activeOrFinished = state.games
     .filter(g => getMatchStatus(g) === 'finished' || getMatchStatus(g) === 'live')
     .sort((a, b) => new Date(b.local_date) - new Date(a.local_date))[0];
-  
+
   const latestMatchContainer = document.getElementById('home-latest-match-card');
   if (latestMatchContainer) {
     if (activeOrFinished) {
@@ -850,14 +855,14 @@ function renderHome() {
   }
 
   // 4. Groups Overview grid
-  const groupsList = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+  const groupsList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
   const groupsContainer = document.getElementById('home-groups');
   if (groupsContainer) {
     groupsContainer.innerHTML = groupsList.map((grp, index) => {
       const grpObj = state.groups.find(g => g.name === grp);
-      const sortedTeams = grpObj ? grpObj.teams.sort((a, b) => (parseInt(b.pts)||0) - (parseInt(a.pts)||0) || (parseInt(b.gd)||0) - (parseInt(a.gd)||0)) : [];
+      const sortedTeams = grpObj ? grpObj.teams.sort((a, b) => (parseInt(b.pts) || 0) - (parseInt(a.pts) || 0) || (parseInt(b.gd) || 0) - (parseInt(a.gd) || 0)) : [];
       const delay = index * 40;
-      
+
       return `
         <div class="card" onclick="showSection('standings'); switchGroupTab('${grp}')" style="animation-delay: ${delay}ms; cursor: pointer; display:flex; flex-direction:column; justify-content:space-between; min-height: 200px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
@@ -866,10 +871,10 @@ function renderHome() {
           </div>
           <div style="display: flex; flex-direction: column; gap: 8px; flex-grow: 1;">
             ${sortedTeams.slice(0, 4).map(t => {
-              const teamInfo = state.teams[String(t.team_id)];
-              const name = teamInfo ? teamInfo.name_en : `Team ${t.team_id}`;
-              const flag = teamInfo ? teamInfo.flag : '';
-              return `
+        const teamInfo = state.teams[String(t.team_id)];
+        const name = teamInfo ? teamInfo.name_en : `Team ${t.team_id}`;
+        const flag = teamInfo ? teamInfo.flag : '';
+        return `
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                   <div style="display: flex; align-items: center; gap: 8px; overflow:hidden;">
                     ${flag ? `<img src="${flag}" alt="${name}" style="width: 20px; height: 14px; object-fit: cover; border-radius: 2px; border:1px solid var(--border-color);" onerror="this.style.opacity=0">` : ''}
@@ -877,7 +882,7 @@ function renderHome() {
                   </div>
                   <span style="font-family: ui-monospace, monospace; font-size: 0.8rem; font-weight: 800; color: var(--text-secondary);">${t.pts}</span>
                 </div>`;
-            }).join('')}
+      }).join('')}
           </div>
         </div>`;
     }).join('');
@@ -899,7 +904,7 @@ function renderHome() {
   // 6. Host Stadiums grid
   const stadiumsGrid = document.getElementById('home-stadiums-grid');
   if (stadiumsGrid) {
-    const stadiumsList = (Object.values(state.stadiums).length > 0 ? Object.values(state.stadiums) : STADIUM_FALLBACK).slice(0, 3);
+    const stadiumsList = (Object.values(state.stadiums).length > 0 ? Object.values(state.stadiums) : []).slice(0, 3);
     stadiumsGrid.innerHTML = stadiumsList.map((s, index) => {
       const delay = index * 50;
       const name = s.name_en || s.name || 'Stadium';
@@ -991,7 +996,7 @@ function renderLiveGroupTabs() {
   const tabsContainer = document.getElementById('live-group-tabs');
   if (!tabsContainer) return;
 
-  const groups = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+  const groups = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
   tabsContainer.innerHTML = groups.map(g => `
     <button class="tab-btn ${g === state.currentGroupTab ? 'active' : ''}" data-group="${g}" onclick="switchGroupTab('${g}')">${g}</button>`
   ).join('');
@@ -1012,11 +1017,11 @@ function renderLiveStandings(grp) {
     const isQ = i < 2;
     const rankClass = isQ ? 'bold' : '';
     const formHtml = getTeamFormDots(t.id, grp);
-    
+
     // Trophy icon for 1st place
-    const rankDisplay = i === 0 
-      ? `<i class="fa-solid fa-trophy" style="color:var(--gold-star); font-size:0.9rem;"></i>` 
-      : `<span class="table-num-cell ${rankClass}">${i+1}</span>`;
+    const rankDisplay = i === 0
+      ? `<i class="fa-solid fa-trophy" style="color:var(--gold-star); font-size:0.9rem;"></i>`
+      : `<span class="table-num-cell ${rankClass}">${i + 1}</span>`;
 
     return `
       <tr class="${isQ ? 'qualifying' : ''}" data-team-id="${t.id}">
@@ -1159,10 +1164,10 @@ function renderGroupTable(grp, containerId = 'standings-container') {
       <span class="form-dot empty"></span>
       <span class="form-dot empty"></span>
       <span class="form-dot empty"></span>`;
-    
-    const rankDisplay = i === 0 
-      ? `<i class="fa-solid fa-trophy" style="color:var(--gold-star); font-size:0.9rem;"></i>` 
-      : `<span class="table-num-cell ${rankClass}">${i+1}</span>`;
+
+    const rankDisplay = i === 0
+      ? `<i class="fa-solid fa-trophy" style="color:var(--gold-star); font-size:0.9rem;"></i>`
+      : `<span class="table-num-cell ${rankClass}">${i + 1}</span>`;
 
     return `
       <tr class="${isQ ? 'qualifying' : ''}" data-team-id="${t.id}">
@@ -1208,7 +1213,7 @@ function renderGroupTable(grp, containerId = 'standings-container') {
       container.innerHTML = `<div class="card empty-state"><p class="empty-state-title">No data available for Group ${grp}</p></div>`;
       return;
     }
-    teamObjs = groupTeams.map((t, i) => ({ id: t.id, flag: t.flag, name: t.name_en, P:0,W:0,D:0,L:0,GF:0,GA:0,GD:0,Pts:0 }));
+    teamObjs = groupTeams.map((t, i) => ({ id: t.id, flag: t.flag, name: t.name_en, P: 0, W: 0, D: 0, L: 0, GF: 0, GA: 0, GD: 0, Pts: 0 }));
     hasData = false;
   } else {
     teamObjs = rows;
@@ -1227,7 +1232,7 @@ function renderGroupTable(grp, containerId = 'standings-container') {
 }
 
 function renderStandings() {
-  const groups = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+  const groups = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
   const tabsContainer = document.getElementById('group-tabs');
   if (tabsContainer) {
     if (!tabsContainer.innerHTML) {
@@ -1246,7 +1251,7 @@ function playStream(url) {
   const video = document.getElementById('video-player');
   const iframe = document.getElementById('iframe-player');
   if (!video) return;
-  
+
   if (currentHlsInstance) {
     currentHlsInstance.destroy();
     currentHlsInstance = null;
@@ -1259,7 +1264,7 @@ function playStream(url) {
   video.classList.remove('hidden');
   video.removeAttribute('src');
   video.load();
-  
+
   if (window.Hls && Hls.isSupported()) {
     const hls = new Hls();
     hls.loadSource(url);
@@ -1294,7 +1299,7 @@ function selectChannel(id) {
   state.activeChannelId = id;
   const channel = STREAM_CHANNELS.find(c => c.id === id);
   if (channel) {
-    if (channel.type === 'iframe') {
+    if (channel.type === 'iframe' || channel.type === 'embed-st') {
       playEmbeddedStream(channel.url);
     } else {
       playStream(channel.url);
@@ -1303,20 +1308,35 @@ function selectChannel(id) {
   }
 }
 
+function makeChannelCardHtml(c) {
+  const isActive = state.activeChannelId === c.id;
+  const iconClass = c.type === 'iframe' ? 'fa-up-right-from-square' : (c.type === 'embed-st' ? 'fa-satellite-dish' : 'fa-play');
+  const categoryColors = {
+    'FIFA Live': '#00a651',
+    'International': '#c8102e',
+    'Sports': '#FF6900',
+    'General': '#0057A8',
+    'Embedded TV': '#7C3AED',
+    'Live API Feed': '#059669'
+  };
+  const catColor = categoryColors[c.category] || 'var(--accent-color)';
+  return `
+    <div class="card channel-card ${isActive ? 'active-channel' : ''}" onclick="selectChannel('${c.id}')" style="cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 12px; transition: all 0.2s ease;">
+      <div style="width: 40px; height: 40px; background-color: ${catColor}; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 1.1rem; flex-shrink: 0;">
+        <i class="fa-solid ${iconClass}"></i>
+      </div>
+      <div style="min-width: 0;">
+        <h4 style="font-size: 0.85rem; font-weight: 800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</h4>
+        <span style="font-size: 0.7rem; color: var(--text-secondary);">${c.category}${c.hd ? ' · <span style="color:var(--accent-color); font-weight:700;">HD</span>' : ''}</span>
+      </div>
+      ${isActive ? '<div style="margin-left:auto; flex-shrink:0;"><span class="live-indicator" style="font-size:0.6rem; padding:2px 6px;"><span class="live-dot"></span>On Air</span></div>' : ''}
+    </div>`;
+}
+
 function renderChannelsList() {
   const container = document.getElementById('stream-channels-list');
   if (!container) return;
-  
-  container.innerHTML = STREAM_CHANNELS.map(c => `
-    <div class="card channel-card ${state.activeChannelId === c.id ? 'active-channel' : ''}" onclick="selectChannel('${c.id}')" style="cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 12px;">
-      <div style="width: 40px; height: 40px; background-color: var(--accent-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 1.2rem;">
-        <i class="fa-solid ${c.type === 'iframe' ? 'fa-up-right-from-square' : 'fa-play'}"></i>
-      </div>
-      <div>
-        <h4 style="font-size: 0.9rem; font-weight: 800;">${c.name}</h4>
-        <span style="font-size: 0.75rem; color: var(--text-secondary);">${c.category}</span>
-      </div>
-    </div>`).join('');
+  container.innerHTML = STREAM_CHANNELS.map(c => makeChannelCardHtml(c)).join('');
 }
 
 function switchStreamTab(tabId) {
@@ -1326,13 +1346,14 @@ function switchStreamTab(tabId) {
   document.querySelectorAll('.stream-tab-content').forEach(content => {
     content.classList.remove('active');
   });
-  
+
   const activeBtn = Array.from(document.querySelectorAll('.stream-tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
   if (activeBtn) activeBtn.classList.add('active');
-  
+
   const activeContent = document.getElementById(`stream-tab-${tabId}`);
   if (activeContent) activeContent.classList.add('active');
 }
+
 
 function renderStreamPage() {
   const liveGames = state.games.filter(g => getMatchStatus(g) === 'live');
@@ -1412,8 +1433,8 @@ function selectStream(gameId) {
   if (infoEl) {
     infoEl.innerHTML =
       `<div style="font-weight: 800; font-size: 1rem; margin-bottom: 12px; color: var(--accent-color);">${homeName} vs ${awayName}</div>` +
-      row('Home',  homeName) +
-      row('Away',  awayName) +
+      row('Home', homeName) +
+      row('Away', awayName) +
       row('Score', `<span style="font-family: ui-monospace, monospace; font-weight: 900; color: var(--accent-color);">${game.home_score}–${game.away_score}</span>`) +
       row('Possession', `<span style="font-family:ui-monospace, monospace;">${possession.home}% - ${possession.away}%</span>`) +
       row('Stage', getStageLabel(game.type) || `Group ${game.group}`) +
@@ -1431,7 +1452,7 @@ function renderVenues() {
     ? Object.values(state.stadiums)
     : STADIUM_FALLBACK;
 
-  const countryCode = { 'USA':'US','Mexico':'MX','Canada':'CA' };
+  const countryCode = { 'USA': 'US', 'Mexico': 'MX', 'Canada': 'CA' };
 
   container.innerHTML = stadiums.map((s, index) => {
     const name = s.name_en || s.name || 'Stadium';
@@ -1480,7 +1501,7 @@ function computeGroupStandings(group) {
   const standings = {};
   teamSet.forEach(id => {
     const team = state.teams[id];
-    standings[id] = { id, name: team?.name_en || `Team ${id}`, flag: team?.flag || '', P:0,W:0,D:0,L:0,GF:0,GA:0,GD:0,Pts:0 };
+    standings[id] = { id, name: team?.name_en || `Team ${id}`, flag: team?.flag || '', P: 0, W: 0, D: 0, L: 0, GF: 0, GA: 0, GD: 0, Pts: 0 };
   });
 
   groupGames.forEach(g => {
@@ -1498,22 +1519,22 @@ function computeGroupStandings(group) {
     standings[hid].GD = standings[hid].GF - standings[hid].GA;
     standings[aid].GD = standings[aid].GF - standings[aid].GA;
 
-    if (hs > as_) { standings[hid].W++; standings[hid].Pts+=3; standings[aid].L++; }
-    else if (hs < as_) { standings[aid].W++; standings[aid].Pts+=3; standings[hid].L++; }
+    if (hs > as_) { standings[hid].W++; standings[hid].Pts += 3; standings[aid].L++; }
+    else if (hs < as_) { standings[aid].W++; standings[aid].Pts += 3; standings[hid].L++; }
     else { standings[hid].D++; standings[hid].Pts++; standings[aid].D++; standings[aid].Pts++; }
   });
 
-  return Object.values(standings).sort((a,b) => b.Pts - a.Pts || b.GD - a.GD || b.GF - a.GF);
+  return Object.values(standings).sort((a, b) => b.Pts - a.Pts || b.GD - a.GD || b.GF - a.GF);
 }
 
 function getTeamFormDots(teamId, group) {
-  const teamGames = state.games.filter(g => 
-    g.group === group && 
-    g.type === 'group' && 
+  const teamGames = state.games.filter(g =>
+    g.group === group &&
+    g.type === 'group' &&
     (String(g.home_team_id) === String(teamId) || String(g.away_team_id) === String(teamId))
   );
-  
-  teamGames.sort((a,b) => {
+
+  teamGames.sort((a, b) => {
     const dateA = getKickoffUTC(a) || new Date(0);
     const dateB = getKickoffUTC(b) || new Date(0);
     return dateA - dateB;
@@ -1524,7 +1545,7 @@ function getTeamFormDots(teamId, group) {
     if (status === 'upcoming') {
       return `<span class="form-dot empty" title="Upcoming Match"></span>`;
     }
-    
+
     if (status === 'live') {
       return `<span class="form-dot" style="background-color: var(--accent-color);" title="Live Match">L</span>`;
     }
@@ -1532,7 +1553,7 @@ function getTeamFormDots(teamId, group) {
     const isHome = String(g.home_team_id) === String(teamId);
     const hs = parseInt(g.home_score) || 0;
     const as_ = parseInt(g.away_score) || 0;
-    
+
     let result = 'D';
     if (hs > as_) {
       result = isHome ? 'W' : 'L';
@@ -1553,15 +1574,15 @@ function getTeamFormDots(teamId, group) {
 // ─── INTERSECTION OBSERVER TICK COUNTERS ───────────────────────
 function animateCountUp(el) {
   const target = parseInt(el.getAttribute('data-target')) || 0;
-  const duration = 1000; 
+  const duration = 1000;
   const startTime = performance.now();
-  
+
   function update(now) {
     const elapsed = now - startTime;
     const progress = Math.min(elapsed / duration, 1);
-    const value = Math.floor(progress * (2 - progress) * target); 
+    const value = Math.floor(progress * (2 - progress) * target);
     el.textContent = value;
-    
+
     if (progress < 1) {
       requestAnimationFrame(update);
     } else {
@@ -1597,22 +1618,22 @@ function startAutoRefresh() {
 
 // ─── STADIUM FALLBACK DATA ────────────────────────────────────
 const STADIUM_FALLBACK = [
-  { id:'1', name_en:'Estadio Azteca', city_en:'Mexico City', country_en:'Mexico', capacity:'87,523' },
-  { id:'2', name_en:'AT&T Stadium', city_en:'Arlington, TX', country_en:'USA', capacity:'80,000' },
-  { id:'3', name_en:'SoFi Stadium', city_en:'Los Angeles, CA', country_en:'USA', capacity:'70,240' },
-  { id:'4', name_en:'MetLife Stadium', city_en:'East Rutherford, NJ', country_en:'USA', capacity:'82,500' },
-  { id:'5', name_en:'Rose Bowl', city_en:'Pasadena, CA', country_en:'USA', capacity:'90,888' },
-  { id:'6', name_en:'Estadio BBVA', city_en:'Monterrey', country_en:'Mexico', capacity:'51,348' },
-  { id:'7', name_en:"Levi's Stadium", city_en:'Santa Clara, CA', country_en:'USA', capacity:'68,500' },
-  { id:'8', name_en:'Arrowhead Stadium', city_en:'Kansas City, MO', country_en:'USA', capacity:'76,416' },
-  { id:'9', name_en:'NRG Stadium', city_en:'Houston, TX', country_en:'USA', capacity:'72,220' },
-  { id:'10', name_en:'Q2 Stadium', city_en:'Austin, TX', country_en:'USA', capacity:'20,738' },
-  { id:'11', name_en:'Gillette Stadium', city_en:'Foxborough, MA', country_en:'USA', capacity:'65,878' },
-  { id:'12', name_en:"BC Place", city_en:'Vancouver', country_en:'Canada', capacity:'54,500' },
-  { id:'13', name_en:'Lincoln Financial Field', city_en:'Philadelphia, PA', country_en:'USA', capacity:'69,328' },
-  { id:'14', name_en:'BMO Field', city_en:'Toronto', country_en:'Canada', capacity:'30,000' },
-  { id:'15', name_en:'Empower Field', city_en:'Denver, CO', country_en:'USA', capacity:'76,125' },
-  { id:'16', name_en:'Estadio Akron', city_en:'Guadalajara', country_en:'Mexico', capacity:'49,850' },
+  { id: '1', name_en: 'Estadio Azteca', city_en: 'Mexico City', country_en: 'Mexico', capacity: '87,523' },
+  { id: '2', name_en: 'AT&T Stadium', city_en: 'Arlington, TX', country_en: 'USA', capacity: '80,000' },
+  { id: '3', name_en: 'SoFi Stadium', city_en: 'Los Angeles, CA', country_en: 'USA', capacity: '70,240' },
+  { id: '4', name_en: 'MetLife Stadium', city_en: 'East Rutherford, NJ', country_en: 'USA', capacity: '82,500' },
+  { id: '5', name_en: 'Rose Bowl', city_en: 'Pasadena, CA', country_en: 'USA', capacity: '90,888' },
+  { id: '6', name_en: 'Estadio BBVA', city_en: 'Monterrey', country_en: 'Mexico', capacity: '51,348' },
+  { id: '7', name_en: "Levi's Stadium", city_en: 'Santa Clara, CA', country_en: 'USA', capacity: '68,500' },
+  { id: '8', name_en: 'Arrowhead Stadium', city_en: 'Kansas City, MO', country_en: 'USA', capacity: '76,416' },
+  { id: '9', name_en: 'NRG Stadium', city_en: 'Houston, TX', country_en: 'USA', capacity: '72,220' },
+  { id: '10', name_en: 'Q2 Stadium', city_en: 'Austin, TX', country_en: 'USA', capacity: '20,738' },
+  { id: '11', name_en: 'Gillette Stadium', city_en: 'Foxborough, MA', country_en: 'USA', capacity: '65,878' },
+  { id: '12', name_en: "BC Place", city_en: 'Vancouver', country_en: 'Canada', capacity: '54,500' },
+  { id: '13', name_en: 'Lincoln Financial Field', city_en: 'Philadelphia, PA', country_en: 'USA', capacity: '69,328' },
+  { id: '14', name_en: 'BMO Field', city_en: 'Toronto', country_en: 'Canada', capacity: '30,000' },
+  { id: '15', name_en: 'Empower Field', city_en: 'Denver, CO', country_en: 'USA', capacity: '76,125' },
+  { id: '16', name_en: 'Estadio Akron', city_en: 'Guadalajara', country_en: 'Mexico', capacity: '49,850' },
 ];
 
 // ─── APP INITIALIZATION ────────────────────────────────────────

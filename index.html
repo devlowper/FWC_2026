@@ -536,8 +536,7 @@
                 <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 8px;">Available Broadcast Feeds</h4>
                 <p style="font-size: 0.85rem; color: var(--text-secondary);">Choose your camera angle and local
                   commentary broadcast.</p>
-                <div id="stream-channels-list"
-                  style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px;">
+                <div id="stream-channels-list">
                   <!-- Dynamically loaded channel cards -->
                 </div>
               </div>
@@ -553,23 +552,44 @@
 
               <!-- Stats & Clips Content -->
               <div id="stream-tab-stats" class="stream-tab-content">
-                <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 8px;">Match Highlights & Key Clips</h4>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px;">
-                  <div class="card" style="padding: 12px; font-size: 0.8rem; cursor: pointer;">
-                    <i class="fa-solid fa-circle-play"
-                      style="color:var(--accent-color); font-size: 1.2rem; margin-bottom: 6px; display:block;"></i>
-                    <strong>Goal 1 - 24'</strong>
-                    <span
-                      style="display:block; color:var(--text-secondary); font-size: 0.7rem; margin-top: 2px;">Vibrant
-                      strike from home team.</span>
+                <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 4px;">
+                  <i class="fa-solid fa-film" style="color:var(--accent-color);"></i> Match Highlights &amp; Key Clips
+                </h4>
+                <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 16px;">Watch the best moments from the tournament.</p>
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                  <!-- Clip 1 -->
+                  <div>
+                    <div style="font-size: 0.75rem; font-weight: 800; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
+                      <i class="fa-solid fa-circle-play"></i> Highlight Reel · FWC 2026
+                    </div>
+                    <div style="position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-card);">
+                      <iframe
+                        src="https://www.youtube.com/embed/M7lYSnH54Uk?si=ArFEjTyHLsGisu7I"
+                        title="FIFA World Cup 2026 Highlights 1"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allowfullscreen
+                        style="position: absolute; inset: 0; width: 100%; height: 100%; border: none;">
+                      </iframe>
+                    </div>
                   </div>
-                  <div class="card" style="padding: 12px; font-size: 0.8rem; cursor: pointer;">
-                    <i class="fa-solid fa-circle-play"
-                      style="color:var(--accent-color); font-size: 1.2rem; margin-bottom: 6px; display:block;"></i>
-                    <strong>Yellow Card - 41'</strong>
-                    <span
-                      style="display:block; color:var(--text-secondary); font-size: 0.7rem; margin-top: 2px;">Tactical
-                      foul in the midfield.</span>
+                  <!-- Clip 2 -->
+                  <div>
+                    <div style="font-size: 0.75rem; font-weight: 800; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
+                      <i class="fa-solid fa-circle-play"></i> Best Goals &amp; Moments · FWC 2026
+                    </div>
+                    <div style="position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-card);">
+                      <iframe
+                        src="https://www.youtube.com/embed/XI2uY1VeyLY?si=VEnSx3x6Fglw2QXC"
+                        title="FIFA World Cup 2026 Highlights 2"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allowfullscreen
+                        style="position: absolute; inset: 0; width: 100%; height: 100%; border: none;">
+                      </iframe>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -594,34 +614,7 @@
               </div>
             </div>
 
-            <!-- Match Info Bar -->
-            <div class="card">
-              <div class="stream-card-header"><i class="fa-solid fa-circle-info"></i> Match Information</div>
-              <div id="stream-match-info" class="stream-details-list">
-                <div class="empty-state" style="padding: 24px; border: none;">
-                  <p>Select a match to view details.</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Commentary -->
-            <div class="card">
-              <div class="stream-card-header"><i class="fa-solid fa-volume-high"></i> Live Text Commentary</div>
-              <div class="commentary-list">
-                <div class="commentary-item">
-                  <div class="commentary-time">90'</div>
-                  <div class="commentary-text">Full time! What a match we have witnessed here.</div>
-                </div>
-                <div class="commentary-item">
-                  <div class="commentary-time">88'</div>
-                  <div class="commentary-text">Corner kick awarded. Defense stands strong.</div>
-                </div>
-                <div class="commentary-item">
-                  <div class="commentary-time">82'</div>
-                  <div class="commentary-text">Substitution for the home squad to secure the defense.</div>
-                </div>
-              </div>
-            </div>
+            <!-- Match Info Bar (hidden – removed) -->
           </div>
         </div>
       </div>

@@ -1163,11 +1163,13 @@ a:hover {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 24px;
+  align-items: start;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
   .stream-layout {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
 }
 
@@ -1177,18 +1179,26 @@ a:hover {
   overflow: hidden;
   position: relative;
   aspect-ratio: 16/9;
+  width: 100%;
   box-shadow: var(--shadow-card);
 }
 
 .video-player {
   width: 100%;
   height: 100%;
+  display: block;
 }
 
 .stream-sidebar {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .stream-sidebar {
+    gap: 16px;
+  }
 }
 
 .stream-card-header {
@@ -1223,13 +1233,15 @@ a:hover {
 .stream-detail-value {
   font-weight: 700;
   color: var(--text-primary);
+  text-align: right;
+  max-width: 55%;
 }
 
 .commentary-list {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-height: 300px;
+  max-height: 260px;
   overflow-y: auto;
   padding-right: 8px;
 }
@@ -1260,26 +1272,35 @@ a:hover {
 /* Stream Section Tabs below player */
 .stream-tabs {
   display: flex;
-  gap: 8px;
-  margin-top: 24px;
+  gap: 4px;
+  margin-top: 20px;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.stream-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .stream-tab-btn {
-  padding: 8px 16px;
+  padding: 8px 14px;
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--text-secondary);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   position: relative;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .stream-tab-btn.active {
@@ -1312,18 +1333,30 @@ a:hover {
   animation: sectionSlideUp 0.3s ease forwards;
 }
 
+/* Channels grid – 2 cols on desktop, 1 col on mobile */
+#stream-channels-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
 .channel-card.active-channel {
   border-color: var(--accent-color);
-  background-color: var(--bg-secondary);
+  background-color: rgba(var(--accent-color-rgb), 0.06);
 }
 
 @media (max-width: 640px) {
   #stream-channels-list {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr;
   }
 
   .stream-tabs {
-    overflow-x: auto;
+    gap: 0;
+  }
+
+  .stream-tab-btn {
+    padding: 8px 10px;
+    font-size: 0.72rem;
   }
 }
 
