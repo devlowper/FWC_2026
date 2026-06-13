@@ -82,6 +82,8 @@ const STREAM_CHANNELS = [
   { id: 'fifa-ch5', name: 'FIFA CH5', category: 'FIFA Live', type: 'hls', url: 'https://1nyaler.streamhostingcdn.top/stream/94/index.m3u8' },
   { id: 'fifa-ch6', name: 'FIFA CH6', category: 'FIFA Live', type: 'hls', url: 'https://1nyaler.streamhostingcdn.top/stream/3/index.m3u8' },
   { id: 'fifa-ch7', name: 'FIFA CH7', category: 'FIFA Live', type: 'hls', url: 'https://1nyaler.streamhostingcdn.top/stream/84/index.m3u8' },
+  { id: 'Tapmad', name: 'Tapmad', category: 'Tapmad Live', type: 'hls', url: 'https://premierleagpl23.akamaized.net/hls/live/2107108/tapmad-P2s6L_FiN@L-UrU/level_0.m3u8' },
+  { id: 'Somoy TV', name: 'Somoy TV', category: 'Somoy TV Live', type: 'hls', url: 'https://live.thebosstv.com:30443/dwlive/Somoy-TV/chunks.m3u8' },
   { id: 'fox-sports', name: 'Fox Sports', category: 'International', type: 'iframe', url: 'https://embed.st/embed/admin/ppv-brazil-vs-morocco/3' },
   { id: 'bbc-one', name: 'BBC One', category: 'International', type: 'iframe', url: 'https://embed.st/embed/admin/ppv-brazil-vs-morocco/1' },
   { id: 't-sports', name: 'T Sports HD', category: 'Sports', type: 'hls', url: 'http://198.195.239.50:8095/tsports/index.m3u8' },
