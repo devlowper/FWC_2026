@@ -75,20 +75,19 @@ const STADIUM_NAME_IMAGE_KEYS = {
 
 // Stream Channel configurations
 const STREAM_CHANNELS = [
-  { id: 'fifa-ch1', name: 'FIFA CH1', category: 'FIFA Live', type: 'hls', url: 'https://cdn.yallashooot.pp.ua/hls/ch1.m3u8' },
-  { id: 'fifa-ch2', name: 'FIFA CH2', category: 'FIFA Live', type: 'hls', url: 'https://s3.us-east-1.amazonaws.com/yalapro1/hls/0/stream.m3u8' },
+  { id: 'fox-sports', name: 'FOX Sports', category: 'FOX Sports Live', type: 'hls', url: 'https://d1jzu95oc8fgt3.cloudfront.net/FOX_Sports720p.m3u8' },
+  { id: 'fifa-ch1', name: 'FIFA CH1', category: 'FIFA Live', type: 'hls', url: 'https://1nyaler.streamhostingcdn.top/stream/84/index.m3u8' },
+  { id: 'fifa-ch2', name: 'FIFA CH2', category: 'FIFA Live', type: 'hls', url: 'https://bein-esp-xumo.amagi.tv/playlistR720P.m3u8' },
   { id: 'fifa-ch3', name: 'FIFA CH3', category: 'FIFA Live', type: 'hls', url: 'https://pruiaaaaaaa.yallaliveshoot.info/hls/ch1/master.m3u8' },
   { id: 'fifa-ch4', name: 'FIFA CH4', category: 'FIFA Live', type: 'hls', url: 'https://2.78542.qzz.io/hls/1/stream.m3u8' },
-  { id: 'fifa-ch5', name: 'FIFA CH5', category: 'FIFA Live', type: 'hls', url: 'https://1nyaler.streamhostingcdn.top/stream/94/index.m3u8' },
+  { id: 'fifa-ch5', name: 'FIFA CH5', category: 'FIFA Live', type: 'hls', url: 'http://38.187.7.252:8000/play/a03d/index.m3u8https://amg01334-beinsportsllc-beinxtraesp-localnow-aekzc.amagi.tv/playlist.m3u8' },
   { id: 'fifa-ch6', name: 'FIFA CH6', category: 'FIFA Live', type: 'hls', url: 'https://1nyaler.streamhostingcdn.top/stream/3/index.m3u8' },
-  { id: 'fifa-ch7', name: 'FIFA CH7', category: 'FIFA Live', type: 'hls', url: 'https://1nyaler.streamhostingcdn.top/stream/84/index.m3u8' },
   { id: 'Tapmad', name: 'Tapmad', category: 'Tapmad Live', type: 'hls', url: 'https://premierleagpl23.akamaized.net/hls/live/2107108/tapmad-P2s6L_FiN@L-UrU/level_0.m3u8' },
   { id: 'Somoy TV', name: 'Somoy TV', category: 'Somoy TV Live', type: 'hls', url: 'https://live.thebosstv.com:30443/dwlive/Somoy-TV/chunks.m3u8' },
   { id: 'fox-sports', name: 'Fox Sports', category: 'International', type: 'iframe', url: 'https://embed.st/embed/admin/ppv-brazil-vs-morocco/3' },
   { id: 'bbc-one', name: 'BBC One', category: 'International', type: 'iframe', url: 'https://embed.st/embed/admin/ppv-brazil-vs-morocco/1' },
   { id: 't-sports', name: 'T Sports HD', category: 'Sports', type: 'hls', url: 'http://198.195.239.50:8095/tsports/index.m3u8' },
   { id: 'btv-national', name: 'BTV National (1080p)', category: 'General', type: 'hls', url: 'https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/1709.m3u8' },
-  { id: 'ntv', name: 'NTV', category: 'Embedded TV', type: 'iframe', url: 'https://ntv.cx/embed?t=U3kvVGsxU1RSbFNVNzYraHQ0eDVFWktGeGVzQkNwSHdpdVRML1F2aWtWSXl2ejBReHNlWWJDTnFoMWhrbFQ3ZTFRTlVMWkJERWwwbTBaN2F0VGtzTWc9PQ~~' },
   { id: 'bitv', name: 'BiTV', category: 'Embedded TV', type: 'iframe', url: 'https://bintv1.blogspot.com/?q=https://prabashsapkota.github.io/ads/?url=https://prabashsapkota.github.io/willo/' }
 ];
 

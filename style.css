@@ -662,6 +662,94 @@ a:hover {
   font-size: 0.75rem;
 }
 
+/* Live Stream Button — Animated */
+.btn-live-stream {
+  background: linear-gradient(135deg, #b91c1c 0%, #E52534 50%, #ff3b4e 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(229, 37, 52, 0.6);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 0 0 rgba(229, 37, 52, 0.5);
+  animation: liveStreamGlow 2.4s ease-in-out infinite;
+}
+
+.btn-live-stream::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.28) 50%,
+    transparent 100%
+  );
+  animation: liveStreamShimmer 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.btn-live-stream:hover {
+  background: linear-gradient(135deg, #991b1b 0%, #c01a27 50%, #e5293a 100%);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 24px rgba(229, 37, 52, 0.5);
+}
+
+.btn-live-stream:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Blinking dot inside the Live Stream button */
+.btn-live-dot {
+  width: 9px;
+  height: 9px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+  position: relative;
+  animation: btnDotBlink 1.2s ease-in-out infinite;
+}
+
+.btn-live-dot::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  animation: btnDotRing 1.2s ease-in-out infinite;
+}
+
+@keyframes liveStreamGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(229, 37, 52, 0.0),
+                0 4px 14px rgba(229, 37, 52, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(229, 37, 52, 0.15),
+                0 4px 22px rgba(229, 37, 52, 0.55);
+  }
+}
+
+@keyframes liveStreamShimmer {
+  0%   { left: -75%; }
+  60%  { left: 130%; }
+  100% { left: 130%; }
+}
+
+@keyframes btnDotBlink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.25; transform: scale(0.7); }
+}
+
+@keyframes btnDotRing {
+  0%   { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+
+
 /* ==========================================================================
    COUNTDOWN TIMER
    ========================================================================== */
