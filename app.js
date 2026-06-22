@@ -184,6 +184,7 @@ function extractAccentColor(imageUrl, callback) {
 
 // ─── THEME TOGGLE ─────────────────────────────────────────────
 function initTheme() {
+  // Synchronous theme check is already executed inline in index.html to prevent FOIT.
   const saved = localStorage.getItem('wc26-theme');
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   const isDark = saved ? saved === 'dark' : prefersDark;
@@ -191,10 +192,20 @@ function initTheme() {
 }
 
 function toggleTheme() {
+  // Add no-transitions class to prevent theme blink/flash
+  document.documentElement.classList.add('no-transitions');
+
   const currentTheme = document.documentElement.getAttribute('data-theme');
   const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', newTheme);
   localStorage.setItem('wc26-theme', newTheme);
+
+  // Force reflow
+  window.getComputedStyle(document.documentElement).opacity;
+
+  setTimeout(() => {
+    document.documentElement.classList.remove('no-transitions');
+  }, 50);
 }
 
 function toggleMobileMenu() {
@@ -1313,6 +1324,8 @@ function selectChannel(id) {
       headerPillEl.textContent = `CH ${idx + 1}`;
     }
 
+    updateViewers(id);
+
     // 2. Set dynamic Channel network logo badge
     const logoEl = document.getElementById('player-sidebar-logo');
     if (logoEl) {
@@ -2031,6 +2044,32 @@ const STADIUM_FALLBACK = [
   { id: '15', name_en: 'Empower Field', city_en: 'Denver, CO', country_en: 'USA', capacity: '76,125' },
   { id: '16', name_en: 'Estadio Akron', city_en: 'Guadalajara', country_en: 'Mexico', capacity: '49,850' },
 ];
+
+async function updateViewers(channelId) {
+  const namespace = "devlowper.github.io";
+  const key = `live_video_${channelId}`;
+  const viewerCountText = document.getElementById('viewer-count-text');
+  if (!viewerCountText) return;
+
+  try {
+    const response = await fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`);
+    if (!response.ok) throw new Error("CountAPI error");
+    const data = await response.json();
+    const totalViewers = data.value;
+    
+    if (totalViewers >= 1000) {
+      viewerCountText.textContent = `${(totalViewers / 1000).toFixed(1)}k watching`;
+    } else {
+      viewerCountText.textContent = `${totalViewers} watching`;
+    }
+  } catch (err) {
+    console.warn("Could not fetch real viewer count:", err);
+    // Fallback if API is down
+    const seed = channelId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const mockViewers = (seed % 15) + 3;
+    viewerCountText.textContent = `${mockViewers} watching`;
+  }
+}
 
 // ─── APP INITIALIZATION ────────────────────────────────────────
 async function init() {

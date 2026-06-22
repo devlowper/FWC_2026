@@ -99,6 +99,11 @@ th {
     box-shadow var(--transition-speed) var(--transition-ease);
 }
 
+.no-transitions,
+.no-transitions * {
+  transition: none !important;
+}
+
 /* Typography */
 h1,
 h2,
