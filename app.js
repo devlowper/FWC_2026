@@ -78,17 +78,17 @@ const STREAM_CHANNELS = [
   { id: 'fox-sports', name: 'FOX Sports', category: 'FOX Sports Live', type: 'hls', url: 'https://prod-cdn01-live.toffeelive.com/live/FIFA-2026-4/0/master_2000.m3u8?hdntl=Expires=1782201879~_GO=Generated~URLPrefix=aHR0cHM6Ly9wcm9kLWNkbjAxLWxpdmUudG9mZmVlbGl2ZS5jb20~Signature=AduQTZ_7SoXu33Jl8WoX6_fbtjKetaNOH0HEGlimMzfQIbzmst2wUXr10OEziHQ4lh2dXZE9onnVDuguqusVRZAHbAUF' },
   { id: 'fifa-ch1', name: 'FIFA CH1', category: 'FIFA Live', type: 'hls', url: 'https://1nyaler.streamhostingcdn.top/stream/84/index.m3u8' },
   { id: 'fifa-ch2', name: 'FIFA CH2', category: 'FIFA Live', type: 'hls', url: 'https://bein-esp-xumo.amagi.tv/playlistR720P.m3u8' },
-  { id: 'fifa-ch3', name: 'FIFA CH3', category: 'FIFA Live', type: 'hls', url: 'https://pruiaaaaaaa.yallaliveshoot.info/hls/ch1/master.m3u8' },
-  { id: 'fifa-ch4', name: 'FIFA CH4', category: 'FIFA Live', type: 'hls', url: 'https://2.78542.qzz.io/hls/1/stream.m3u8' },
   { id: 'fifa-ch5', name: 'FIFA CH5', category: 'FIFA Live', type: 'hls', url: 'http://38.187.7.252:8000/play/a03d/index.m3u8https://amg01334-beinsportsllc-beinxtraesp-localnow-aekzc.amagi.tv/playlist.m3u8' },
   { id: 'fifa-ch6', name: 'FIFA CH6', category: 'FIFA Live', type: 'hls', url: 'https://1nyaler.streamhostingcdn.top/stream/3/index.m3u8' },
   { id: 'Tapmad', name: 'Tapmad', category: 'Tapmad Live', type: 'hls', url: 'https://premierleagpl23.akamaized.net/hls/live/2107108/tapmad-P2s6L_FiN@L-UrU/level_0.m3u8' },
   { id: 'Somoy TV', name: 'Somoy TV', category: 'Somoy TV Live', type: 'hls', url: 'https://live.thebosstv.com:30443/dwlive/Somoy-TV/chunks.m3u8' },
+  { id: 'somoy-tv-2', name: 'Somoy TV 2', category: 'Somoy TV Live', type: 'hls', url: 'https://live.thebosstv.com:30443/dwlive/Somoy-TV/chunks.m3u8' },
   { id: 'fox-sports-intl', name: 'Fox Sports', category: 'International', type: 'iframe', url: 'https://embed.st/embed/admin/ppv-brazil-vs-morocco/3' },
   { id: 'bbc-one', name: 'BBC One', category: 'International', type: 'iframe', url: 'https://embed.st/embed/admin/ppv-brazil-vs-morocco/1' },
   { id: 't-sports', name: 'T Sports HD', category: 'Sports', type: 'hls', url: 'http://198.195.239.50:8095/tsports/index.m3u8' },
-  { id: 'btv-national', name: 'BTV National (1080p)', category: 'General', type: 'hls', url: 'https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/1709.m3u8' },
-  { id: 'bitv', name: 'BiTV', category: 'Embedded TV', type: 'iframe', url: 'https://bintv1.blogspot.com/?q=https://prabashsapkota.github.io/ads/?url=https://prabashsapkota.github.io/willo/' }
+  { id: 'win-sports', name: 'Win Sports', category: 'Sports', type: 'hls', url: 'https://1nyaler.streamhostingcdn.top/stream/32/index.m3u8' },
+  { id: 'being-sports-1', name: 'Being Sports 1', category: 'Sports', type: 'hls', url: 'https://ua102.online24.pm:8443/1101/video.m3u8?token=350B326FB34F4B8' },
+  { id: 'd-sports', name: 'D Sports', category: 'Sports', type: 'hls', url: 'https://1nyaler.streamhostingcdn.top/stream/106/index.m3u8' }
 ];
 
 // ─── STATE MANAGEMENT ─────────────────────────────────────────
@@ -1303,14 +1303,146 @@ function selectChannel(id) {
   state.activeChannelId = id;
   const channel = STREAM_CHANNELS.find(c => c.id === id);
   if (channel) {
-    // Update active stream status bar details
-    const nameEl = document.getElementById('current-stream-name');
-    const catEl = document.getElementById('current-stream-category');
-    const badgeEl = document.getElementById('current-stream-badge');
+    // 1. Update Channel Header bar elements
+    const headerNameEl = document.getElementById('active-channel-header-name');
+    const headerPillEl = document.getElementById('active-channel-header-pill');
     
-    if (nameEl) nameEl.textContent = channel.name;
-    if (catEl) catEl.textContent = channel.category;
-    if (badgeEl) badgeEl.textContent = channel.type === 'hls' ? 'HLS Stream' : 'Embedded Iframe';
+    if (headerNameEl) headerNameEl.textContent = channel.name;
+    if (headerPillEl) {
+      const idx = STREAM_CHANNELS.findIndex(c => c.id === id);
+      headerPillEl.textContent = `CH ${idx + 1}`;
+    }
+
+    // 2. Set dynamic Channel network logo badge
+    const logoEl = document.getElementById('player-sidebar-logo');
+    if (logoEl) {
+      const firstWord = channel.name.split(' ')[0].toUpperCase();
+      const remaining = channel.name.split(' ').slice(1).join(' ').toLowerCase() || 'live';
+      if (channel.id.includes('win-sports')) {
+        logoEl.innerHTML = `<span class="text-orange-500">WIN</span><span class="text-[10px] tracking-wider text-slate-400 not-italic">sports VIVO</span>`;
+      } else if (channel.id.includes('fox')) {
+        logoEl.innerHTML = `<span class="text-[#0057A8]">FOX</span><span class="text-[10px] tracking-wider text-slate-400 not-italic">sports VIVO</span>`;
+      } else if (channel.id.includes('somoy')) {
+        logoEl.innerHTML = `<span class="text-red-500">SOMOY</span><span class="text-[10px] tracking-wider text-slate-400 not-italic">news VIVO</span>`;
+      } else {
+        logoEl.innerHTML = `<span class="text-rose-500">${firstWord}</span><span class="text-[10px] tracking-wider text-slate-400 not-italic">${remaining} VIVO</span>`;
+      }
+    }
+
+    // 3. Set dynamic Ticker Hashtag
+    const hashtagEl = document.getElementById('ticker-hashtag');
+    if (hashtagEl) {
+      if (channel.id.includes('win-sports')) {
+        hashtagEl.textContent = '#SAQUELARGOWIN';
+      } else {
+        const hashTagClean = channel.name.replace(/\s+/g, '').toUpperCase();
+        hashtagEl.textContent = `#${hashTagClean}`;
+      }
+    }
+
+    // 4. Fetch active game to populate standings and scoreline
+    const activeGame = state.games.find(g => getMatchStatus(g) === 'live') 
+      || state.games.find(g => getMatchStatus(g) === 'finished') 
+      || state.games[0];
+
+    if (activeGame) {
+      // Set active group stage header text
+      const groupTitleEl = document.getElementById('player-sidebar-group-title');
+      if (groupTitleEl) {
+        groupTitleEl.textContent = activeGame.group ? `Grupo ${activeGame.group}` : 'Grupo A';
+      }
+
+      // Populate overlay standings list
+      const standings = computeGroupStandings(activeGame.group || 'A');
+      const rowsEl = document.getElementById('player-sidebar-rows');
+      if (rowsEl) {
+        if (standings.length > 0) {
+          rowsEl.innerHTML = standings.slice(0, 4).map((t, idx) => {
+            const flagHtml = t.flag ? `<img src="${t.flag}" class="w-5 h-3.5 object-cover rounded border border-[#0f4d4d]/30" onerror="this.style.opacity=0">` : '';
+            return `
+              <div class="flex items-center justify-between text-xs font-black text-white">
+                <div class="flex items-center gap-2">
+                  ${flagHtml}
+                  <span class="text-slate-400 font-sans">${idx + 1}.</span>
+                  <span class="tracking-tight uppercase font-sans truncate max-w-[140px]">${t.name}</span>
+                </div>
+                <span class="text-[#00a651] font-sans">${t.Pts}</span>
+              </div>`;
+          }).join('');
+        } else {
+          // If standings empty, fallback mock rows
+          rowsEl.innerHTML = `
+            <div class="flex items-center justify-between text-xs font-black text-white">
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-3.5 bg-slate-800 rounded border border-[#0f4d4d]/30"></div>
+                <span class="text-slate-450 font-sans">1.</span>
+                <span class="tracking-tight uppercase font-sans">ARGENTINA</span>
+              </div>
+              <span class="text-[#00a651] font-sans">6</span>
+            </div>
+            <div class="flex items-center justify-between text-xs font-black text-white">
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-3.5 bg-slate-800 rounded border border-[#0f4d4d]/30"></div>
+                <span class="text-slate-450 font-sans">2.</span>
+                <span class="tracking-tight uppercase font-sans">AUSTRIA</span>
+              </div>
+              <span class="text-[#00a651] font-sans">3</span>
+            </div>
+            <div class="flex items-center justify-between text-xs font-black text-white">
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-3.5 bg-slate-800 rounded border border-[#0f4d4d]/30"></div>
+                <span class="text-slate-450 font-sans">3.</span>
+                <span class="tracking-tight uppercase font-sans">JORDANIA</span>
+              </div>
+              <span class="text-[#00a651] font-sans">0</span>
+            </div>
+            <div class="flex items-center justify-between text-xs font-black text-white">
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-3.5 bg-slate-800 rounded border border-[#0f4d4d]/30"></div>
+                <span class="text-slate-450 font-sans">4.</span>
+                <span class="tracking-tight uppercase font-sans">ARGELIA</span>
+              </div>
+              <span class="text-[#00a651] font-sans">0</span>
+            </div>`;
+        }
+      }
+
+      // Populate Bottom Ticker Match Scoreline Line 1
+      const tickerMatchEl = document.getElementById('ticker-match-line');
+      if (tickerMatchEl) {
+        const homeName = getTeamName(activeGame, 'home').toUpperCase();
+        const awayName = getTeamName(activeGame, 'away').toUpperCase();
+        const homeScore = activeGame.home_score !== null ? activeGame.home_score : '0';
+        const awayScore = activeGame.away_score !== null ? activeGame.away_score : '0';
+        const groupStr = activeGame.group ? `GRUPO ${activeGame.group}` : 'GRUPO A';
+        const matchdayStr = activeGame.matchday ? `FECHA ${activeGame.matchday}` : 'FECHA 1';
+        tickerMatchEl.textContent = `${homeName} ${homeScore}-${awayScore} ${awayName} / COPA MUNDIAL DE LA FIFA 2026 / ${groupStr} - ${matchdayStr}`;
+      }
+
+      // Populate Bottom Ticker Headline Line 2
+      const tickerHeadlineEl = document.getElementById('ticker-headline-line');
+      if (tickerHeadlineEl) {
+        const status = getMatchStatus(activeGame);
+        const home = getTeamName(activeGame, 'home').toUpperCase();
+        const away = getTeamName(activeGame, 'away').toUpperCase();
+        const stadium = getStadiumName(activeGame.stadium_id).toUpperCase();
+        
+        let headline = `TRANSMISIÓN EN VIVO A TRAVÉS DE ${channel.name.toUpperCase()}. ENCUENTRO DECISIVO!`;
+        if (status === 'live') {
+          headline = `EN DESARROLLO: ${home} Y ${away} DISPUTAN UN CHOQUE VITAL EN EL ESTADIO ${stadium}. ${activeGame.time_elapsed ? 'MINUTO ' + activeGame.time_elapsed : 'MARCADOR EN JUEGO'}`;
+        } else if (status === 'finished') {
+          const winner = parseInt(activeGame.home_score) > parseInt(activeGame.away_score) ? home : (parseInt(activeGame.away_score) > parseInt(activeGame.home_score) ? away : null);
+          if (winner) {
+            headline = `VICTORIA PARA ${winner} TRAS IMPONERSE EN UN IMPRESIONANTE ENCUENTRO ANTE SU RIVAL EN EL ESTADIO ${stadium}`;
+          } else {
+            headline = `EMPATE EN UN COMBATE INTENSO ENTRE ${home} Y ${away} POR LA FASE DE GRUPOS EN EL ESTADIO ${stadium}`;
+          }
+        } else {
+          headline = `PRÓXIMO DEBUT: ${home} SE ENFRENTARÁ CONTRA ${away} EN EL ESTADIO ${stadium} POR LA FASE CLASIFICATORIA`;
+        }
+        tickerHeadlineEl.textContent = headline;
+      }
+    }
 
     if (channel.type === 'iframe' || channel.type === 'embed-st') {
       playEmbeddedStream(channel.url);

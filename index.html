@@ -520,45 +520,105 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <!-- Video Screen Container (Takes 2 cols on lg) -->
           <div class="lg:col-span-2 flex flex-col">
-            <!-- Video Player Viewport -->
-            <div class="relative w-full bg-black rounded-2xl overflow-hidden shadow-2xl border border-slate-800 aspect-video group">
-              <!-- HLS Player -->
-              <video id="video-player" class="w-full h-full object-cover block" controls autoplay muted playsinline></video>
+            <!-- Live Broadcast Header (Matches Reference Image) -->
+            <div class="flex items-center gap-3 mb-4 select-none">
+              <!-- Live Indicator Pill -->
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-600 rounded-full border border-rose-500/20 text-white font-black text-[11px] uppercase tracking-wider animate-pulse">
+                <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+                LIVE
+              </span>
+              <!-- Channel Title -->
+              <h2 id="active-channel-header-name" class="text-lg font-black text-[var(--text-primary)] leading-none tracking-tight">FOX Sports</h2>
+              <!-- Channel Index Pill -->
+              <span id="active-channel-header-pill" class="px-2 py-0.5 text-[10px] font-extrabold bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded border border-[var(--border-color)]">CH 1</span>
+            </div>
+
+            <!-- Combined Broadcast Frame (Matches reference image layout) -->
+            <div class="w-full bg-[#05080c] border border-slate-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
               
-              <!-- Iframe Player -->
-              <iframe id="iframe-player" class="w-full h-full block hidden border-none" frameborder="0" 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                      allowfullscreen referrerpolicy="no-referrer"></iframe>
-
-              <!-- Blinking Live Badge overlayed on player -->
-              <div class="absolute top-4 left-4 z-10 pointer-events-none">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-black text-white uppercase tracking-wider bg-rose-600 rounded-lg shadow-lg border border-rose-500/30 animate-pulse">
-                  <span class="w-2 h-2 bg-white rounded-full relative flex">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                  </span>
-                  Live Broadcast
-                </span>
-              </div>
-            </div>
-
-            <!-- Active Stream Status Bar -->
-            <div id="active-stream-status" class="mt-4 p-4 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-rose-600/10 rounded-lg flex items-center justify-center border border-rose-500/20 text-rose-500">
-                  <i class="fa-solid fa-satellite-dish text-lg animate-bounce"></i>
+              <!-- Video / Overlay Standings Split Container -->
+              <div class="flex flex-col md:flex-row relative">
+                
+                <!-- Left Panel: Video Player Viewport -->
+                <div class="flex-1 relative aspect-video bg-black min-h-[260px] md:min-h-[350px]">
+                  <!-- HLS Player -->
+                  <video id="video-player" class="w-full h-full object-cover block" controls autoplay muted playsinline></video>
+                  
+                  <!-- Iframe Player -->
+                  <iframe id="iframe-player" class="w-full h-full block hidden border-none" frameborder="0" 
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                          allowfullscreen referrerpolicy="no-referrer"></iframe>
                 </div>
-                <div>
-                  <h3 id="current-stream-name" class="text-sm font-extrabold text-[var(--text-primary)]">Loading channel...</h3>
-                  <p id="current-stream-category" class="text-xs text-[var(--text-secondary)] font-medium">Please select a broadcast</p>
+
+                <!-- Right Panel: Live Group Standings Overlay (Teal/Emerald Gradient) -->
+                <div id="player-standings-sidebar" class="w-full md:w-[280px] bg-gradient-to-b from-[#0b3b3b] via-[#051a1a] to-black p-5 border-l border-slate-800 flex flex-col justify-between shrink-0">
+                  <div class="flex flex-col gap-4">
+                    <!-- Channel Logo Header -->
+                    <div class="flex items-center justify-center py-2 border-b border-[#0f4d4d]/30">
+                      <div id="player-sidebar-logo" class="text-center font-black italic text-xl tracking-tight text-white flex flex-col leading-none">
+                        <span class="text-rose-500">WIN</span>
+                        <span class="text-[10px] tracking-wider text-slate-400 not-italic">sports VIVO</span>
+                      </div>
+                    </div>
+
+                    <!-- Group Stage Headings -->
+                    <div class="flex flex-col leading-tight">
+                      <span class="text-[9px] font-bold text-amber-500 tracking-wider uppercase select-none">Copa Mundial de la FIFA 2026™</span>
+                      <h3 id="player-sidebar-group-title" class="text-lg font-black text-[#00a651] tracking-tight uppercase mt-0.5">Grupo A</h3>
+                    </div>
+
+                    <!-- Standings Table -->
+                    <div class="flex flex-col gap-2 mt-2">
+                      <!-- Headers -->
+                      <div class="flex justify-between text-[10px] font-bold text-slate-400 uppercase border-b border-[#0f4d4d]/20 pb-1 select-none">
+                        <span>Equipo.</span>
+                        <span>Pts.</span>
+                      </div>
+                      <!-- Rows -->
+                      <div id="player-sidebar-rows" class="flex flex-col gap-2.5">
+                        <!-- Populated dynamically by JS -->
+                        <div class="text-center py-4 text-xs text-slate-500">Loading standings...</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="flex items-center gap-2">
-                <span id="current-stream-badge" class="px-2.5 py-1 text-[10px] font-extrabold tracking-wider text-[var(--text-secondary)] uppercase bg-[var(--bg-secondary)] rounded-md border border-[var(--border-color)]">
-                  HLS Stream
-                </span>
-              </div>
-            </div>
 
+              <!-- Bottom News Ticker Overlay Bar -->
+              <div class="w-full flex flex-col sm:flex-row border-t border-slate-800 bg-[#051e22] text-white">
+                <!-- Left Box (Hashtag + Logo) -->
+                <div class="flex flex-row sm:flex-col shrink-0 border-r border-[#0f4d4d]/20">
+                  <div id="ticker-hashtag" class="bg-[#00a651] text-black font-black px-4 py-2 text-xs flex items-center justify-center tracking-tight uppercase select-none min-w-[140px] sm:h-9">
+                    #SAQUELARGOWIN
+                  </div>
+                  <div class="bg-[#10141a] text-white px-4 py-1.5 flex items-center justify-center select-none sm:h-11">
+                    <i class="fa-solid fa-trophy text-white text-base"></i>
+                    <span class="ml-1.5 text-xs font-black tracking-widest leading-none">FIFA</span>
+                  </div>
+                </div>
+
+                <!-- Right Box (News / Scores Ticker) -->
+                <div class="flex-1 bg-[#051e22] px-5 py-3 flex flex-col justify-center relative min-h-[80px]">
+                  <!-- Line 1: Match scoreline/venue info (Teal text) -->
+                  <div id="ticker-match-line" class="text-xs font-black text-[#00a651] tracking-tight uppercase">
+                    FIFA WORLD CUP 2026
+                  </div>
+                  
+                  <!-- Line 2: Headline update (Bold white text) -->
+                  <div id="ticker-headline-line" class="text-sm sm:text-base font-black text-white leading-tight uppercase mt-0.5 pr-10">
+                    Select a broadcast feed from the sidebar to begin.
+                  </div>
+
+                  <!-- Bottom right chevrons -->
+                  <div class="absolute right-4 bottom-3 flex items-center gap-0.5 select-none opacity-80">
+                    <i class="fa-solid fa-chevron-right text-orange-500 text-sm animate-pulse"></i>
+                    <i class="fa-solid fa-chevron-right text-orange-500 text-sm animate-pulse delay-75"></i>
+                    <i class="fa-solid fa-chevron-right text-orange-500 text-sm animate-pulse delay-150"></i>
+                  </div>
+                </div>
+              </div>
+
+            </div>
 
           </div>
 
