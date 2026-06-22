@@ -1444,6 +1444,15 @@ function selectChannel(id) {
       }
     }
 
+    const playerCustomUi = document.getElementById('player-custom-ui');
+    if (playerCustomUi) {
+      if (channel.type === 'iframe' || channel.type === 'embed-st') {
+        playerCustomUi.classList.add('hidden');
+      } else {
+        playerCustomUi.classList.remove('hidden');
+      }
+    }
+
     if (channel.type === 'iframe' || channel.type === 'embed-st') {
       playEmbeddedStream(channel.url);
     } else {
@@ -1453,57 +1462,221 @@ function selectChannel(id) {
   }
 }
 
+function initVideoPlayerControls() {
+  const container = document.getElementById('video-player-container');
+  const video = document.getElementById('video-player');
+  const customUi = document.getElementById('player-custom-ui');
+  const centerPlayBtn = document.getElementById('center-play-btn');
+  const playPauseBtn = document.getElementById('ctrl-play-pause-btn');
+  const playPauseIcon = document.getElementById('ctrl-play-pause-icon');
+  const muteBtn = document.getElementById('ctrl-mute-btn');
+  const muteIcon = document.getElementById('ctrl-mute-icon');
+  const volumeSlider = document.getElementById('ctrl-volume-slider');
+  const fullscreenBtn = document.getElementById('ctrl-fullscreen-btn');
+  const customControlBar = document.getElementById('custom-control-bar');
+
+  if (!container || !video || !customUi) return;
+
+  // Toggle play/pause
+  const togglePlay = (e) => {
+    if (e) e.stopPropagation();
+    if (video.paused) {
+      video.play().catch(err => console.log("Play failed:", err));
+    } else {
+      video.pause();
+    }
+  };
+
+  if (centerPlayBtn) {
+    centerPlayBtn.addEventListener('click', togglePlay);
+  }
+  if (playPauseBtn) {
+    playPauseBtn.addEventListener('click', togglePlay);
+  }
+  video.addEventListener('click', togglePlay);
+
+  // Sync play/pause state to UI
+  video.addEventListener('play', () => {
+    if (playPauseIcon) playPauseIcon.className = 'fa-solid fa-pause';
+    if (centerPlayBtn) {
+      centerPlayBtn.style.opacity = '0';
+      centerPlayBtn.style.pointerEvents = 'none';
+    }
+  });
+
+  video.addEventListener('pause', () => {
+    if (playPauseIcon) playPauseIcon.className = 'fa-solid fa-play';
+    if (centerPlayBtn) {
+      centerPlayBtn.style.opacity = '1';
+      centerPlayBtn.style.pointerEvents = 'auto';
+    }
+    // Always show controls when paused
+    if (customControlBar) {
+      customControlBar.classList.remove('opacity-0', 'pointer-events-none');
+      customControlBar.classList.add('opacity-100', 'pointer-events-auto');
+    }
+  });
+
+  // Volume & Mute Controls
+  const updateVolumeUI = () => {
+    const isMuted = video.muted;
+    const vol = isMuted ? 0 : video.volume;
+    
+    if (volumeSlider) {
+      volumeSlider.value = vol;
+    }
+
+    if (muteIcon) {
+      if (isMuted || vol === 0) {
+        muteIcon.className = 'fa-solid fa-volume-xmark';
+      } else if (vol < 0.5) {
+        muteIcon.className = 'fa-solid fa-volume-low';
+      } else {
+        muteIcon.className = 'fa-solid fa-volume-high';
+      }
+    }
+  };
+
+  if (muteBtn) {
+    muteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      video.muted = !video.muted;
+      if (!video.muted && video.volume === 0) {
+        video.volume = 0.5;
+      }
+      updateVolumeUI();
+    });
+  }
+
+  if (volumeSlider) {
+    volumeSlider.addEventListener('input', (e) => {
+      const vol = parseFloat(e.target.value);
+      video.volume = vol;
+      video.muted = (vol === 0);
+      updateVolumeUI();
+    });
+  }
+
+  video.addEventListener('volumechange', updateVolumeUI);
+  updateVolumeUI(); // Initial sync
+
+  // Fullscreen
+  if (fullscreenBtn) {
+    fullscreenBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!document.fullscreenElement) {
+        container.requestFullscreen().catch(err => {
+          console.warn(`Fullscreen error: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    });
+  }
+
+  document.addEventListener('fullscreenchange', () => {
+    if (fullscreenBtn) {
+      const icon = fullscreenBtn.querySelector('i');
+      if (icon) {
+        if (document.fullscreenElement === container) {
+          icon.className = 'fa-solid fa-compress';
+        } else {
+          icon.className = 'fa-solid fa-expand';
+        }
+      }
+    }
+  });
+
+  // Controls Auto-Hide
+  let hideTimeout = null;
+
+  const showControls = () => {
+    if (customControlBar) {
+      customControlBar.classList.remove('opacity-0', 'pointer-events-none');
+      customControlBar.classList.add('opacity-100', 'pointer-events-auto');
+    }
+    container.style.cursor = 'default';
+    clearTimeout(hideTimeout);
+    
+    // Only hide if video is playing
+    if (!video.paused) {
+      hideTimeout = setTimeout(() => {
+        if (customControlBar) {
+          customControlBar.classList.add('opacity-0', 'pointer-events-none');
+          customControlBar.classList.remove('opacity-100', 'pointer-events-auto');
+        }
+        container.style.cursor = 'none';
+      }, 2500);
+    }
+  };
+
+  container.addEventListener('mousemove', showControls);
+  container.addEventListener('mouseleave', () => {
+    clearTimeout(hideTimeout);
+    if (!video.paused && customControlBar) {
+      customControlBar.classList.add('opacity-0', 'pointer-events-none');
+      customControlBar.classList.remove('opacity-100', 'pointer-events-auto');
+    }
+  });
+
+  // Show controls initially
+  showControls();
+}
+
 function makeChannelCardHtml(c) {
   const isActive = state.activeChannelId === c.id;
-  const iconClass = c.type === 'iframe' ? 'fa-up-right-from-square' : 'fa-play';
-  
-  // Category Color Map (Tailwind utility matches)
-  const categoryBgColors = {
-    'FIFA Live': 'bg-emerald-600/15 border-emerald-500/20 text-emerald-400',
-    'International': 'bg-rose-600/15 border-rose-500/20 text-rose-400',
-    'Sports': 'bg-amber-600/15 border-amber-500/20 text-amber-400',
-    'General': 'bg-blue-600/15 border-blue-500/20 text-blue-400',
-    'Embedded TV': 'bg-purple-600/15 border-purple-500/20 text-purple-400',
-    'FOX Sports Live': 'bg-orange-600/15 border-orange-500/20 text-orange-400',
-    'Tapmad Live': 'bg-cyan-600/15 border-cyan-500/20 text-cyan-400',
-    'Somoy TV Live': 'bg-rose-500/15 border-rose-400/20 text-rose-300',
-  };
-  
-  const catColorClasses = categoryBgColors[c.category] || 'bg-rose-600/15 border-rose-500/20 text-rose-400';
-  
-  const cardClasses = isActive 
-    ? 'bg-rose-600/10 border-rose-500/40 shadow-inner' 
-    : 'bg-[var(--bg-secondary)]/50 border-[var(--border-color)] hover:bg-[var(--bg-secondary)] hover:border-[var(--text-secondary)]/40';
+  const idx = STREAM_CHANNELS.findIndex(ch => ch.id === c.id);
+  const chNum = idx !== -1 ? idx + 1 : 1;
 
-  const titleColor = isActive ? 'text-white' : 'text-[var(--text-primary)]';
-  const borderHighlight = isActive ? 'border-l-4 border-l-rose-500' : '';
-  
+  const cardClasses = isActive
+    ? 'border-2 border-red-600 bg-red-600/10 shadow-lg'
+    : 'border border-slate-200 dark:border-slate-800 hover:bg-[var(--bg-secondary)] hover:border-slate-400 dark:hover:border-slate-650';
+
+  const chBadgeClasses = isActive
+    ? 'bg-red-600 text-white border-red-500'
+    : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border-color)]';
+
+  const statusDotColor = isActive ? 'bg-red-500' : 'bg-slate-450';
+  const statusTextColor = isActive ? 'text-red-500 font-extrabold' : 'text-[var(--text-secondary)] font-bold';
+
+  const caretColor = isActive ? 'text-red-500' : 'text-[var(--text-secondary)]';
+
+  // Pulse wave animation only if active
+  const pulseWaveHtml = isActive ? `
+    <div class="flex items-end gap-[2px] h-3 text-red-500 select-none mr-1.5">
+      <span class="w-[2px] bg-red-500 animate-pulse" style="height: 60%"></span>
+      <span class="w-[2px] bg-red-500 animate-pulse" style="height: 100%; animation-delay: 0.15s"></span>
+      <span class="w-[2px] bg-red-500 animate-pulse" style="height: 40%; animation-delay: 0.3s"></span>
+    </div>
+  ` : '';
+
   return `
-    <div class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-200 select-none ${cardClasses} ${borderHighlight}" onclick="selectChannel('${c.id}')">
-      <!-- Icon Badge -->
-      <div class="w-9 h-9 rounded-lg border flex items-center justify-center text-sm flex-shrink-0 ${catColorClasses}">
-        <i class="fa-solid ${iconClass}"></i>
+    <div class="flex items-center justify-between p-3.5 rounded-2xl cursor-pointer transition-all duration-200 select-none ${cardClasses}" onclick="selectChannel('${c.id}')">
+      <div class="flex items-center gap-3 min-w-0">
+        <!-- Gold Cup/Trophy Logo on dark circular backdrop -->
+        <div class="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center flex-shrink-0 shadow-md">
+          <i class="fa-solid fa-trophy text-amber-500 text-sm"></i>
+        </div>
+        
+        <!-- Channel Info -->
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="text-sm font-extrabold text-[var(--text-primary)] leading-tight truncate">${c.name}</span>
+            <span class="px-1.5 py-0.5 text-[8px] font-black rounded border ${chBadgeClasses} uppercase tracking-wider">CH ${chNum}</span>
+          </div>
+          <!-- Subtitle status indicator: ● WATCHING -->
+          <div class="flex items-center gap-1.5 mt-1">
+            <span class="w-1.5 h-1.5 rounded-full ${statusDotColor} ${isActive ? 'animate-pulse' : ''}"></span>
+            <span class="text-[10px] uppercase tracking-wider ${statusTextColor}">WATCHING</span>
+          </div>
+        </div>
       </div>
-      
-      <!-- Details -->
-      <div class="min-w-0 flex-1">
-        <h4 class="text-xs font-extrabold ${titleColor} truncate">${c.name}</h4>
-        <span class="text-[10px] text-[var(--text-secondary)] font-medium">${c.category}</span>
+
+      <!-- Right Action Indicators (Pulse Wave + Caret) -->
+      <div class="flex items-center gap-1 flex-shrink-0">
+        ${pulseWaveHtml}
+        <i class="fa-solid fa-angle-right text-xs ${caretColor}"></i>
       </div>
-      
-      <!-- Indicators -->
-      ${isActive ? `
-      <div class="flex-shrink-0">
-        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-black text-rose-500 uppercase tracking-wider bg-rose-500/10 border border-rose-500/25 rounded">
-          <span class="w-1.5 h-1.5 bg-rose-500 rounded-full relative flex">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-          </span>
-          ON AIR
-        </span>
-      </div>` : `
-      <div class="flex-shrink-0 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">
-        <i class="fa-solid fa-circle-play text-sm"></i>
-      </div>`}
     </div>`;
 }
 
@@ -1527,6 +1700,10 @@ function renderChannelsList() {
   const countBadge = document.getElementById('channel-count');
   if (countBadge) {
     countBadge.textContent = `${filteredChannels.length} Feed${filteredChannels.length === 1 ? '' : 's'}`;
+  }
+  const onlineCountBadge = document.getElementById('channel-online-count');
+  if (onlineCountBadge) {
+    onlineCountBadge.textContent = `${filteredChannels.length} ONLINE`;
   }
 
   if (filteredChannels.length === 0) {
@@ -1868,6 +2045,9 @@ async function init() {
 
   // Activate count counters on visible viewport
   initStatCounter();
+
+  // Initialize custom video player control event listeners
+  initVideoPlayerControls();
 
   // Start polling service
   startAutoRefresh();
