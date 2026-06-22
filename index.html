@@ -14,6 +14,16 @@
   <!-- HLS Streaming Script -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest" async></script>
 
+  <!-- Tailwind CSS CDN (Preflight disabled to prevent conflicts with vanilla CSS) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      corePlugins: {
+        preflight: false,
+      }
+    }
+  </script>
+
   <!-- App Stylesheet -->
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -507,118 +517,104 @@
       </div>
 
       <div id="stream-player-area" style="margin-top: 24px;">
-        <div class="stream-layout">
-          <!-- Video Screen Container -->
-          <div>
-            <div class="video-container" style="position: relative;">
-              <video id="video-player" controls class="video-player"></video>
-              <iframe id="iframe-player" class="video-player hidden" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width: 100%; height: 100%; border: none;"></iframe>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Video Screen Container (Takes 2 cols on lg) -->
+          <div class="lg:col-span-2 flex flex-col">
+            <!-- Video Player Viewport -->
+            <div class="relative w-full bg-black rounded-2xl overflow-hidden shadow-2xl border border-slate-800 aspect-video group">
+              <!-- HLS Player -->
+              <video id="video-player" class="w-full h-full object-cover block" controls autoplay muted playsinline></video>
+              
+              <!-- Iframe Player -->
+              <iframe id="iframe-player" class="w-full h-full block hidden border-none" frameborder="0" 
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                      allowfullscreen referrerpolicy="no-referrer"></iframe>
 
               <!-- Blinking Live Badge overlayed on player -->
-              <div style="position: absolute; top: 16px; left: 16px; z-index: 10;">
-                <span class="live-badge"><i class="fa-solid fa-circle"></i> Live</span>
+              <div class="absolute top-4 left-4 z-10 pointer-events-none">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-black text-white uppercase tracking-wider bg-rose-600 rounded-lg shadow-lg border border-rose-500/30 animate-pulse">
+                  <span class="w-2 h-2 bg-white rounded-full relative flex">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                  </span>
+                  Live Broadcast
+                </span>
               </div>
             </div>
 
-            <!-- TABS BELOW STREAM PLAYER (Channels | Schedule | Stats & Clips) -->
-            <div class="stream-tabs">
-              <button class="stream-tab-btn active" onclick="switchStreamTab('channels')">
-                <i class="fa-solid fa-tv"></i> Channels
-              </button>
-              <button class="stream-tab-btn" onclick="switchStreamTab('schedule')">
-                <i class="fa-solid fa-calendar-day"></i> Schedule
-              </button>
-              <button class="stream-tab-btn" onclick="switchStreamTab('stats')">
-                <i class="fa-solid fa-chart-bar"></i> Stats & Clips
-              </button>
-            </div>
-
-            <!-- Tabs Content Area -->
-            <div>
-              <!-- Channels Content -->
-              <div id="stream-tab-channels" class="stream-tab-content active">
-                <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 8px;">Available Broadcast Feeds</h4>
-                <p style="font-size: 0.85rem; color: var(--text-secondary);">Choose your camera angle and local
-                  commentary broadcast.</p>
-                <div id="stream-channels-list">
-                  <!-- Dynamically loaded channel cards -->
+            <!-- Active Stream Status Bar -->
+            <div id="active-stream-status" class="mt-4 p-4 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-rose-600/10 rounded-lg flex items-center justify-center border border-rose-500/20 text-rose-500">
+                  <i class="fa-solid fa-satellite-dish text-lg animate-bounce"></i>
+                </div>
+                <div>
+                  <h3 id="current-stream-name" class="text-sm font-extrabold text-[var(--text-primary)]">Loading channel...</h3>
+                  <p id="current-stream-category" class="text-xs text-[var(--text-secondary)] font-medium">Please select a broadcast</p>
                 </div>
               </div>
-
-              <!-- Schedule Content -->
-              <div id="stream-tab-schedule" class="stream-tab-content">
-                <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 8px;">Today's Broadcast Schedule</h4>
-                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;"
-                  id="stream-schedule-ticker">
-                  <!-- Mapped in JS -->
-                </div>
-              </div>
-
-              <!-- Stats & Clips Content -->
-              <div id="stream-tab-stats" class="stream-tab-content">
-                <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 4px;">
-                  <i class="fa-solid fa-film" style="color:var(--accent-color);"></i> Match Highlights &amp; Key Clips
-                </h4>
-                <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 16px;">Watch the best moments from the tournament.</p>
-                <div style="display: flex; flex-direction: column; gap: 20px;">
-                  <!-- Clip 1 -->
-                  <div>
-                    <div style="font-size: 0.75rem; font-weight: 800; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
-                      <i class="fa-solid fa-circle-play"></i> Highlight Reel · FWC 2026
-                    </div>
-                    <div style="position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-card);">
-                      <iframe
-                        src="https://www.youtube.com/embed/M7lYSnH54Uk?si=ArFEjTyHLsGisu7I"
-                        title="FIFA World Cup 2026 Highlights 1"
-                        frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerpolicy="strict-origin-when-cross-origin"
-                        allowfullscreen
-                        style="position: absolute; inset: 0; width: 100%; height: 100%; border: none;">
-                      </iframe>
-                    </div>
-                  </div>
-                  <!-- Clip 2 -->
-                  <div>
-                    <div style="font-size: 0.75rem; font-weight: 800; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
-                      <i class="fa-solid fa-circle-play"></i> Best Goals &amp; Moments · FWC 2026
-                    </div>
-                    <div style="position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-card);">
-                      <iframe
-                        src="https://www.youtube.com/embed/XI2uY1VeyLY?si=VEnSx3x6Fglw2QXC"
-                        title="FIFA World Cup 2026 Highlights 2"
-                        frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerpolicy="strict-origin-when-cross-origin"
-                        allowfullscreen
-                        style="position: absolute; inset: 0; width: 100%; height: 100%; border: none;">
-                      </iframe>
-                    </div>
-                  </div>
-                </div>
+              <div class="flex items-center gap-2">
+                <span id="current-stream-badge" class="px-2.5 py-1 text-[10px] font-extrabold tracking-wider text-[var(--text-secondary)] uppercase bg-[var(--bg-secondary)] rounded-md border border-[var(--border-color)]">
+                  HLS Stream
+                </span>
               </div>
             </div>
+
 
           </div>
 
-          <!-- Match Statistics / Commentary Sidebar -->
-          <div class="stream-sidebar">
-            <!-- Next Match Indicator Ticker Card -->
-            <div class="card"
-              style="padding: 16px; display: flex; flex-direction: column; gap: 12px; border-color: var(--accent-color);">
-              <div style="display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-size: 0.7rem; font-weight: 800; color: var(--accent-color);"><i
-                    class="fa-solid fa-tv"></i> Live Ticker</span>
-                <span class="live-indicator" style="font-size: 0.6rem; padding: 2px 6px;"><span class="live-dot"></span>
-                  Next Match</span>
+          <!-- Sidebar Channel Navigator (Takes 1 col on lg) -->
+          <div class="flex flex-col gap-5">
+            <!-- Next Match Live Ticker Card -->
+            <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-4 flex flex-col gap-3 shadow-lg">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-rose-500 uppercase tracking-wider flex items-center gap-1.5">
+                  <i class="fa-solid fa-tv"></i> Live Ticker
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-extrabold text-rose-500 uppercase tracking-wider bg-rose-500/10 border border-rose-500/20 rounded-md">
+                  <span class="w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping"></span>
+                  Next Match
+                </span>
               </div>
-              <div id="stream-next-match-ticker"
-                style="font-size: 0.85rem; font-weight: 800; display:flex; justify-content:space-between; align-items:center;">
+              <div id="stream-next-match-ticker" class="text-sm font-black text-[var(--text-primary)] flex justify-between items-center">
                 <!-- Filled by JS -->
               </div>
             </div>
 
-            <!-- Match Info Bar (hidden – removed) -->
+            <!-- Broadcast Feeds Card -->
+            <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-5 flex flex-col gap-4 shadow-xl">
+              <div class="flex items-center justify-between">
+                <h3 class="text-base font-extrabold text-[var(--text-primary)] flex items-center gap-2">
+                  <i class="fa-solid fa-satellite-dish text-rose-500"></i> Broadcast Feeds
+                </h3>
+                <span id="channel-count" class="px-2 py-0.5 text-xs font-bold bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-full border border-[var(--border-color)]">
+                  0 Feeds
+                </span>
+              </div>
+
+              <!-- Search input -->
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[var(--text-secondary)]">
+                  <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                </span>
+                <input type="text" id="channel-search" 
+                       class="w-full pl-9 pr-4 py-2.5 text-sm bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:outline-none focus:border-rose-500/50 transition-colors" 
+                       placeholder="Search channels, feeds..." oninput="renderChannelsList()">
+              </div>
+
+              <!-- Category filter scroll area -->
+              <div class="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none" id="category-filters">
+                <button onclick="setChannelCategory('All')" class="px-3 py-1.5 text-xs font-bold rounded-lg whitespace-nowrap bg-rose-600 text-white border border-rose-500/30 transition-colors filter-cat-btn active">All</button>
+                <button onclick="setChannelCategory('FIFA Live')" class="px-3 py-1.5 text-xs font-bold rounded-lg whitespace-nowrap bg-[var(--bg-secondary)] text-[var(--text-secondary)] border border-[var(--border-color)] hover:text-[var(--text-primary)] transition-colors filter-cat-btn">FIFA Live</button>
+                <button onclick="setChannelCategory('Sports')" class="px-3 py-1.5 text-xs font-bold rounded-lg whitespace-nowrap bg-[var(--bg-secondary)] text-[var(--text-secondary)] border border-[var(--border-color)] hover:text-[var(--text-primary)] transition-colors filter-cat-btn">Sports</button>
+                <button onclick="setChannelCategory('International')" class="px-3 py-1.5 text-xs font-bold rounded-lg whitespace-nowrap bg-[var(--bg-secondary)] text-[var(--text-secondary)] border border-[var(--border-color)] hover:text-[var(--text-primary)] transition-colors filter-cat-btn">International</button>
+                <button onclick="setChannelCategory('Somoy TV Live')" class="px-3 py-1.5 text-xs font-bold rounded-lg whitespace-nowrap bg-[var(--bg-secondary)] text-[var(--text-secondary)] border border-[var(--border-color)] hover:text-[var(--text-primary)] transition-colors filter-cat-btn">Somoy TV</button>
+              </div>
+
+              <!-- Scrollable channels container -->
+              <div id="stream-channels-list" class="flex flex-col gap-2 overflow-y-auto pr-1" style="max-height: 400px;">
+                <!-- Dynamically loaded channel cards -->
+              </div>
+            </div>
           </div>
         </div>
       </div>

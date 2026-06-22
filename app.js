@@ -75,7 +75,7 @@ const STADIUM_NAME_IMAGE_KEYS = {
 
 // Stream Channel configurations
 const STREAM_CHANNELS = [
-  { id: 'fox-sports', name: 'FOX Sports', category: 'FOX Sports Live', type: 'hls', url: 'https://d1jzu95oc8fgt3.cloudfront.net/FOX_Sports720p.m3u8' },
+  { id: 'fox-sports', name: 'FOX Sports', category: 'FOX Sports Live', type: 'hls', url: 'https://prod-cdn01-live.toffeelive.com/live/FIFA-2026-4/0/master_2000.m3u8?hdntl=Expires=1782201879~_GO=Generated~URLPrefix=aHR0cHM6Ly9wcm9kLWNkbjAxLWxpdmUudG9mZmVlbGl2ZS5jb20~Signature=AduQTZ_7SoXu33Jl8WoX6_fbtjKetaNOH0HEGlimMzfQIbzmst2wUXr10OEziHQ4lh2dXZE9onnVDuguqusVRZAHbAUF' },
   { id: 'fifa-ch1', name: 'FIFA CH1', category: 'FIFA Live', type: 'hls', url: 'https://1nyaler.streamhostingcdn.top/stream/84/index.m3u8' },
   { id: 'fifa-ch2', name: 'FIFA CH2', category: 'FIFA Live', type: 'hls', url: 'https://bein-esp-xumo.amagi.tv/playlistR720P.m3u8' },
   { id: 'fifa-ch3', name: 'FIFA CH3', category: 'FIFA Live', type: 'hls', url: 'https://pruiaaaaaaa.yallaliveshoot.info/hls/ch1/master.m3u8' },
@@ -84,7 +84,7 @@ const STREAM_CHANNELS = [
   { id: 'fifa-ch6', name: 'FIFA CH6', category: 'FIFA Live', type: 'hls', url: 'https://1nyaler.streamhostingcdn.top/stream/3/index.m3u8' },
   { id: 'Tapmad', name: 'Tapmad', category: 'Tapmad Live', type: 'hls', url: 'https://premierleagpl23.akamaized.net/hls/live/2107108/tapmad-P2s6L_FiN@L-UrU/level_0.m3u8' },
   { id: 'Somoy TV', name: 'Somoy TV', category: 'Somoy TV Live', type: 'hls', url: 'https://live.thebosstv.com:30443/dwlive/Somoy-TV/chunks.m3u8' },
-  { id: 'fox-sports', name: 'Fox Sports', category: 'International', type: 'iframe', url: 'https://embed.st/embed/admin/ppv-brazil-vs-morocco/3' },
+  { id: 'fox-sports-intl', name: 'Fox Sports', category: 'International', type: 'iframe', url: 'https://embed.st/embed/admin/ppv-brazil-vs-morocco/3' },
   { id: 'bbc-one', name: 'BBC One', category: 'International', type: 'iframe', url: 'https://embed.st/embed/admin/ppv-brazil-vs-morocco/1' },
   { id: 't-sports', name: 'T Sports HD', category: 'Sports', type: 'hls', url: 'http://198.195.239.50:8095/tsports/index.m3u8' },
   { id: 'btv-national', name: 'BTV National (1080p)', category: 'General', type: 'hls', url: 'https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/1709.m3u8' },
@@ -1265,13 +1265,16 @@ function playStream(url) {
   video.classList.remove('hidden');
   video.removeAttribute('src');
   video.load();
+  video.muted = true; // Ensure muted to guarantee autoplay is allowed
 
   if (window.Hls && Hls.isSupported()) {
     const hls = new Hls();
     hls.loadSource(url);
     hls.attachMedia(video);
     currentHlsInstance = hls;
-    video.play().catch(e => console.log("Auto-play blocked by browser."));
+    hls.on(Hls.Events.MANIFEST_PARSED, function() {
+      video.play().catch(e => console.log("Auto-play blocked by browser."));
+    });
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
     video.src = url;
     video.play().catch(e => console.log("Auto-play blocked by browser."));
@@ -1300,6 +1303,15 @@ function selectChannel(id) {
   state.activeChannelId = id;
   const channel = STREAM_CHANNELS.find(c => c.id === id);
   if (channel) {
+    // Update active stream status bar details
+    const nameEl = document.getElementById('current-stream-name');
+    const catEl = document.getElementById('current-stream-category');
+    const badgeEl = document.getElementById('current-stream-badge');
+    
+    if (nameEl) nameEl.textContent = channel.name;
+    if (catEl) catEl.textContent = channel.category;
+    if (badgeEl) badgeEl.textContent = channel.type === 'hls' ? 'HLS Stream' : 'Embedded Iframe';
+
     if (channel.type === 'iframe' || channel.type === 'embed-st') {
       playEmbeddedStream(channel.url);
     } else {
@@ -1311,33 +1323,107 @@ function selectChannel(id) {
 
 function makeChannelCardHtml(c) {
   const isActive = state.activeChannelId === c.id;
-  const iconClass = c.type === 'iframe' ? 'fa-up-right-from-square' : (c.type === 'embed-st' ? 'fa-satellite-dish' : 'fa-play');
-  const categoryColors = {
-    'FIFA Live': '#00a651',
-    'International': '#c8102e',
-    'Sports': '#FF6900',
-    'General': '#0057A8',
-    'Embedded TV': '#7C3AED',
-    'Live API Feed': '#059669'
+  const iconClass = c.type === 'iframe' ? 'fa-up-right-from-square' : 'fa-play';
+  
+  // Category Color Map (Tailwind utility matches)
+  const categoryBgColors = {
+    'FIFA Live': 'bg-emerald-600/15 border-emerald-500/20 text-emerald-400',
+    'International': 'bg-rose-600/15 border-rose-500/20 text-rose-400',
+    'Sports': 'bg-amber-600/15 border-amber-500/20 text-amber-400',
+    'General': 'bg-blue-600/15 border-blue-500/20 text-blue-400',
+    'Embedded TV': 'bg-purple-600/15 border-purple-500/20 text-purple-400',
+    'FOX Sports Live': 'bg-orange-600/15 border-orange-500/20 text-orange-400',
+    'Tapmad Live': 'bg-cyan-600/15 border-cyan-500/20 text-cyan-400',
+    'Somoy TV Live': 'bg-rose-500/15 border-rose-400/20 text-rose-300',
   };
-  const catColor = categoryColors[c.category] || 'var(--accent-color)';
+  
+  const catColorClasses = categoryBgColors[c.category] || 'bg-rose-600/15 border-rose-500/20 text-rose-400';
+  
+  const cardClasses = isActive 
+    ? 'bg-rose-600/10 border-rose-500/40 shadow-inner' 
+    : 'bg-[var(--bg-secondary)]/50 border-[var(--border-color)] hover:bg-[var(--bg-secondary)] hover:border-[var(--text-secondary)]/40';
+
+  const titleColor = isActive ? 'text-white' : 'text-[var(--text-primary)]';
+  const borderHighlight = isActive ? 'border-l-4 border-l-rose-500' : '';
+  
   return `
-    <div class="card channel-card ${isActive ? 'active-channel' : ''}" onclick="selectChannel('${c.id}')" style="cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 12px; transition: all 0.2s ease;">
-      <div style="width: 40px; height: 40px; background-color: ${catColor}; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 1.1rem; flex-shrink: 0;">
+    <div class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-200 select-none ${cardClasses} ${borderHighlight}" onclick="selectChannel('${c.id}')">
+      <!-- Icon Badge -->
+      <div class="w-9 h-9 rounded-lg border flex items-center justify-center text-sm flex-shrink-0 ${catColorClasses}">
         <i class="fa-solid ${iconClass}"></i>
       </div>
-      <div style="min-width: 0;">
-        <h4 style="font-size: 0.85rem; font-weight: 800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</h4>
-        <span style="font-size: 0.7rem; color: var(--text-secondary);">${c.category}${c.hd ? ' · <span style="color:var(--accent-color); font-weight:700;">HD</span>' : ''}</span>
+      
+      <!-- Details -->
+      <div class="min-w-0 flex-1">
+        <h4 class="text-xs font-extrabold ${titleColor} truncate">${c.name}</h4>
+        <span class="text-[10px] text-[var(--text-secondary)] font-medium">${c.category}</span>
       </div>
-      ${isActive ? '<div style="margin-left:auto; flex-shrink:0;"><span class="live-indicator" style="font-size:0.6rem; padding:2px 6px;"><span class="live-dot"></span>On Air</span></div>' : ''}
+      
+      <!-- Indicators -->
+      ${isActive ? `
+      <div class="flex-shrink-0">
+        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-black text-rose-500 uppercase tracking-wider bg-rose-500/10 border border-rose-500/25 rounded">
+          <span class="w-1.5 h-1.5 bg-rose-500 rounded-full relative flex">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+          </span>
+          ON AIR
+        </span>
+      </div>` : `
+      <div class="flex-shrink-0 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">
+        <i class="fa-solid fa-circle-play text-sm"></i>
+      </div>`}
     </div>`;
 }
 
 function renderChannelsList() {
   const container = document.getElementById('stream-channels-list');
   if (!container) return;
-  container.innerHTML = STREAM_CHANNELS.map(c => makeChannelCardHtml(c)).join('');
+
+  const searchInput = document.getElementById('channel-search');
+  const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+  const selectedCategory = state.channelSelectedCategory || 'All';
+
+  // Filter channels based on search query and category
+  const filteredChannels = STREAM_CHANNELS.filter(c => {
+    const matchesSearch = c.name.toLowerCase().includes(query) || c.category.toLowerCase().includes(query);
+    const matchesCategory = selectedCategory === 'All' || c.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  // Update feed count badge
+  const countBadge = document.getElementById('channel-count');
+  if (countBadge) {
+    countBadge.textContent = `${filteredChannels.length} Feed${filteredChannels.length === 1 ? '' : 's'}`;
+  }
+
+  if (filteredChannels.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-10 text-[var(--text-secondary)]">
+        <i class="fa-solid fa-satellite-dish text-2xl mb-2 block opacity-50 animate-pulse"></i>
+        <p class="text-xs">No channels found matching filters</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = filteredChannels.map(c => makeChannelCardHtml(c)).join('');
+}
+
+function setChannelCategory(cat) {
+  state.channelSelectedCategory = cat;
+  
+  // Update button visual active states
+  document.querySelectorAll('.filter-cat-btn').forEach(btn => {
+    if (btn.getAttribute('onclick').includes(`'${cat}'`)) {
+      btn.classList.remove('bg-[var(--bg-secondary)]', 'text-[var(--text-secondary)]', 'border-[var(--border-color)]');
+      btn.classList.add('bg-rose-600', 'text-white', 'border-rose-500/30', 'active');
+    } else {
+      btn.classList.add('bg-[var(--bg-secondary)]', 'text-[var(--text-secondary)]', 'border-[var(--border-color)]');
+      btn.classList.remove('bg-rose-600', 'text-white', 'border-rose-500/30', 'active');
+    }
+  });
+
+  renderChannelsList();
 }
 
 function switchStreamTab(tabId) {
@@ -1658,6 +1744,7 @@ async function init() {
 document.addEventListener('DOMContentLoaded', init);
 window.switchStreamTab = switchStreamTab;
 window.selectChannel = selectChannel;
+window.setChannelCategory = setChannelCategory;
 window.switchGroupTab = switchGroupTab;
 window.setScheduleDate = setScheduleDate;
 window.toggleTheme = toggleTheme;
