@@ -113,9 +113,8 @@
             Venues</button>
         </div>
 
-        <!-- Hero Cards Grid (Latest Match + Next Match countdown) -->
-        <div class="grid-2-col" style="text-align: left;">
-          <!-- Latest Match Card -->
+        <!-- Latest Match Card -->
+        <div style="text-align: left; max-width: 600px; margin: 0 auto;">
           <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
               <h3 class="card-title" style="margin-bottom: 8px;"><i class="fa-solid fa-trophy"
@@ -125,41 +124,6 @@
             </div>
             <div id="home-latest-match-card">
               <div class="skeleton-shimmer" style="height: 140px;"></div>
-            </div>
-          </div>
-
-          <!-- Next Match Card with Countdown -->
-          <div class="card"
-            style="display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
-            <div>
-              <h3 class="card-title" style="margin-bottom: 8px;"><i class="fa-solid fa-clock"
-                  style="color:var(--accent-color);"></i> Next Match</h3>
-              <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 16px;">Counting down to the
-                final kickoff at MetLife Stadium.</p>
-            </div>
-
-            <!-- Countdown Widget -->
-            <div class="countdown-container" style="margin: 10px auto 20px auto; width: 100%;">
-              <div class="countdown-box">
-                <div id="cd-days" class="countdown-num">--</div>
-                <div class="countdown-label">Days</div>
-              </div>
-              <div class="countdown-box">
-                <div id="cd-hours" class="countdown-num">--</div>
-                <div class="countdown-label">Hours</div>
-              </div>
-              <div class="countdown-box">
-                <div id="cd-mins" class="countdown-num">--</div>
-                <div class="countdown-label">Mins</div>
-              </div>
-              <div class="countdown-box">
-                <div id="cd-secs" class="countdown-num">--</div>
-                <div class="countdown-label">Secs</div>
-              </div>
-            </div>
-
-            <div id="home-next-match-details" style="font-size: 0.8rem; font-weight: 700; color: var(--accent-color);">
-              <!-- Mapped in JS -->
             </div>
           </div>
         </div>
